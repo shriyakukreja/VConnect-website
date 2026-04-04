@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VConnect</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+    <div class="logo">VConnect</div>
+    <ul class="nav-links">
+        <li><a href="index.html" class="active">Home</a></li>
+        <li><a href="dashboard.html">Dashboard</a></li>
+        <li><a href="how-it-works.html">How It Works</a></li>
+        <li><a href="features.html">Features</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="login.html" class="login-btn">Login</a></li>
+    </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+    <div class="hero-content">
+        <div class="hero-text">
+            <span class="badge">Smart Hygiene System</span>
+            <h1>QR-Based Washroom Monitoring</h1>
+            <p>Scan. Report. Improve cleanliness instantly.</p>
+            <a href="dashboard.html" class="primary-btn">Go to Dashboard</a>
+        </div>
+
+        <div class="hero-image">
+            <img src="images/qr.png" alt="Scan QR Code" width="180">
+        </div>
+    </div>
+</section>
+
+<!-- QUICK ACTIONS -->
+<section class="quick-actions">
+    <h2>Quick Actions</h2>
+
+    <div class="action-grid">
+        <div class="action-card" onclick="openModal('feedback')">
+            <h3>Feedback</h3>
+        </div>
+
+        <div class="action-card" onclick="openModal('request')">
+            <h3>Request Cleaning</h3>
+        </div>
+
+        <div class="action-card" onclick="openModal('status')">
+            <h3>Report Status</h3>
+        </div>
+
+        <div class="action-card" onclick="openModal('facility')">
+            <h3>Facility Issue</h3>
+        </div>
+    </div>
+</section>
+
+<!-- PROBLEM & SOLUTION -->
+<section class="split-section">
+    <div class="problem-card">
+        <h2>The Problem</h2>
+        <p>Manual reporting and delayed cleaning responses reduce hygiene standards.</p>
+    </div>
+
+    <div class="solution-card">
+        <h2>The Solution</h2>
+        <p>Instant QR-based issue reporting with real-time monitoring dashboard.</p>
+    </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+    <div class="footer-content">
+        <div class="footer-brand">
+            <h3>VConnect</h3>
+            <p>Revolutionizing washroom maintenance with QR-based reporting and real-time monitoring.</p>
+        </div>
+
+        <div class="footer-links">
+            <div>
+                <h4>Platform</h4>
+                <a href="how-it-works.html">How It Works</a>
+                <a href="features.html">Features</a>
+                <a href="dashboard.html">Dashboard</a>
+            </div>
+
+            <div>
+                <h4>Support</h4>
+                <a href="#">Contact</a>
+                <a href="#">Report Issue</a>
+                <a href="#">Privacy Policy</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer-bottom">
+        <p>© 2025 VConnect</p>
+        <p>Made with ❤️ for better hygiene</p>
+    </div>
+</footer>
+
+<!-- MODAL -->
+<div id="modal" class="hidden">
+    <div class="modal-content">
+        <span onclick="closeModal()" style="cursor:pointer;">&times;</span>
+        <div id="modalBody"></div>
+    </div>
+</div>
+<div id="actionPopup" class="popup hidden">
+    <p id="popupMessage"></p>
+</div>
+<div id="successMessage" class="hidden"></div>
+
+<script src="js/main.js"></script>
+</body>
+</html>

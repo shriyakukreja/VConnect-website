@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VConnect - Login</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="logo">VConnect</div>
+        <ul class="nav-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="dashboard.html">Dashboard</a></li>
+            <li><a href="how-it-works.html">How It Works</a></li>
+            <li><a href="explore-features.html">Explore</a></li>
+            <li><a href="about.html">About</a></li>
+            <li><a href="login.html" class="login-btn">Login</a></li>
+        </ul>
+    </nav>
+
+    <main class="login-section">
+        <div class="login-card">
+            <div class="lock-icon-box">
+                <i class="fa-solid fa-lock"></i>
+            </div>
+            
+            <h2>Welcome Back</h2>
+            <p class="subtitle">Select your role to sign in to VConnect</p>
+
+            <div class="role-switcher">
+                <button class="role-btn active" data-role="User">User</button>
+                <button class="role-btn" data-role="Supervisor">Supervisor</button>
+                <button class="role-btn" data-role="Cleaner">Cleaner</button>
+            </div>
+
+            <form id="loginForm">
+                <div class="input-group">
+                    <label>Student/Staff Email</label>
+                    <div class="input-field">
+                        <i class="fa-regular fa-user"></i>
+                        <input type="text" placeholder="enter username" required>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>Password</label>
+                    <div class="input-field no-icon">
+                        <input type="password" placehorder="Enter text" required>
+                    </div>
+                </div>
+
+                <button type="submit" class="submit-btn" id="submitBtn">Sign In as User</button>
+            </form>
+
+            <p class="footer-link">Don't have an account? <a href="about.html">Learn more</a></p>
+        </div>
+    </main>
+
+    <script src="js/main.js"></script>
+</body>
+</html>

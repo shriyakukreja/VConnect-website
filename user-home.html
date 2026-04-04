@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>User Home - VConnect</title>
+<link rel="stylesheet" href="css/style.css">
+<script src="js/main.js" defer></script>
+</head>
+<body onload="autofillUserInfo()">
+<header>
+    <h1>VConnect</h1>
+    <button onclick="logout()">Logout</button>
+</header>
+
+<div style="padding:20px;">
+    <h2>Welcome, <span id="user-name"></span></h2>
+
+    <h3>Quick Actions</h3>
+    <button onclick="submitAction('Feedback')">Feedback</button>
+    <button onclick="submitAction('Request Clean')">Request Clean</button>
+    <button onclick="submitAction('Report Status')">Report Status</button>
+    <button onclick="submitAction('Facility Issue')">Facility Issue</button>
+</div>
+</body>
+</html>

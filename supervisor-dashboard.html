@@ -1,0 +1,1810 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CleanOps — Supervisor Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0b0f14;
+    --bg2: #111720;
+    --bg3: #161d28;
+    --card: #1a2233;
+    --card2: #1f2a3d;
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(255,255,255,0.12);
+    --text: #e8edf5;
+    --muted: #7a8ba3;
+    --muted2: #4a5a72;
+    --accent: #00d4aa;
+    --accent2: #00a882;
+    --warn: #f59e0b;
+    --danger: #ef4444;
+    --info: #3b82f6;
+    --green: #10b981;
+    --purple: #8b5cf6;
+    --font-display: 'Syne', sans-serif;
+    --font-body: 'DM Sans', sans-serif;
+    --font-mono: 'DM Mono', monospace;
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 14px;
+    min-height: 100vh;
+    display: flex;
+  }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: 220px;
+    min-height: 100vh;
+    background: var(--bg2);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    flex-shrink: 0;
+  }
+
+  .logo {
+    padding: 28px 20px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .logo-mark {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 4px;
+  }
+
+  .logo-icon {
+    width: 32px; height: 32px;
+    background: var(--accent);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+  }
+
+  .logo h1 {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 18px;
+    letter-spacing: -0.5px;
+    color: var(--text);
+  }
+
+  .logo p {
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    font-family: var(--font-mono);
+  }
+
+  .nav {
+    padding: 16px 12px;
+    flex: 1;
+  }
+
+  .nav-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--muted2);
+    font-family: var(--font-mono);
+    padding: 8px 8px 4px;
+    margin-top: 8px;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 10px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    color: var(--muted);
+    font-size: 13.5px;
+    font-weight: 400;
+    transition: all 0.15s;
+    text-decoration: none;
+    margin-bottom: 2px;
+    position: relative;
+  }
+
+  .nav-item:hover { background: var(--card); color: var(--text); }
+
+  .nav-item.active {
+    background: rgba(0,212,170,0.1);
+    color: var(--accent);
+  }
+
+  .nav-item .icon { font-size: 15px; width: 18px; text-align: center; }
+
+  .badge {
+    margin-left: auto;
+    background: var(--danger);
+    color: white;
+    font-size: 10px;
+    font-family: var(--font-mono);
+    padding: 1px 6px;
+    border-radius: 20px;
+    font-weight: 500;
+  }
+
+  .badge.warn { background: var(--warn); color: #0b0f14; }
+
+  .sidebar-footer {
+    padding: 16px;
+    border-top: 1px solid var(--border);
+  }
+
+  .supervisor-card {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    background: var(--card);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+  }
+
+  .avatar {
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--purple));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 13px;
+    color: white;
+    flex-shrink: 0;
+  }
+
+  .sup-info p { font-size: 13px; font-weight: 500; color: var(--text); }
+  .sup-info span { font-size: 11px; color: var(--muted); }
+
+  /* MAIN */
+  .main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  .topbar {
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+
+  .page-title {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 20px;
+    letter-spacing: -0.5px;
+  }
+
+  .topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .live-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-family: var(--font-mono);
+    color: var(--accent);
+    background: rgba(0,212,170,0.1);
+    padding: 5px 12px;
+    border-radius: 20px;
+    border: 1px solid rgba(0,212,170,0.2);
+  }
+
+  .pulse {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--accent);
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.85); }
+  }
+
+  .btn {
+    padding: 7px 16px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border2);
+    background: var(--card);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .btn:hover { background: var(--card2); border-color: var(--border2); }
+
+  .btn.primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #0b0f14;
+    font-weight: 500;
+  }
+
+  .btn.primary:hover { background: var(--accent2); }
+
+  /* CONTENT */
+  .content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 28px;
+  }
+
+  /* TAB VIEWS */
+  .tab-view { display: none; }
+  .tab-view.active { display: block; }
+
+  /* STAT CARDS */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+
+  .stat-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+
+  .stat-card:hover { border-color: var(--border2); }
+
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+  }
+
+  .stat-card.green::before { background: var(--green); }
+  .stat-card.warn::before { background: var(--warn); }
+  .stat-card.danger::before { background: var(--danger); }
+  .stat-card.info::before { background: var(--info); }
+
+  .stat-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--muted);
+    font-family: var(--font-mono);
+    margin-bottom: 10px;
+  }
+
+  .stat-value {
+    font-family: var(--font-display);
+    font-size: 30px;
+    font-weight: 700;
+    letter-spacing: -1px;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .stat-sub {
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .stat-icon {
+    position: absolute;
+    top: 16px; right: 16px;
+    font-size: 22px;
+    opacity: 0.2;
+  }
+
+  /* SECTION HEADERS */
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+
+  .section-title {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 16px;
+    letter-spacing: -0.3px;
+  }
+
+  .section-sub {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  /* GRID LAYOUT */
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+
+  .grid-3 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+
+  /* STAFF TABLE */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+
+  .card-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .card-title {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 14px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  thead th {
+    text-align: left;
+    padding: 10px 20px;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.7px;
+    color: var(--muted);
+    font-family: var(--font-mono);
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+
+  tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background 0.1s;
+    cursor: pointer;
+  }
+
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: var(--card2); }
+
+  tbody td {
+    padding: 12px 20px;
+    font-size: 13px;
+    vertical-align: middle;
+  }
+
+  .staff-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .avatar-sm {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 11px;
+    color: white;
+    flex-shrink: 0;
+  }
+
+  .staff-name { font-weight: 500; font-size: 13px; }
+  .staff-role { font-size: 11px; color: var(--muted); }
+
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 9px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-family: var(--font-mono);
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  .pill.green { background: rgba(16,185,129,0.15); color: #34d399; }
+  .pill.warn { background: rgba(245,158,11,0.15); color: #fbbf24; }
+  .pill.danger { background: rgba(239,68,68,0.15); color: #f87171; }
+  .pill.info { background: rgba(59,130,246,0.15); color: #60a5fa; }
+  .pill.muted { background: rgba(122,139,163,0.15); color: var(--muted); }
+
+  .condition-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .bar-track {
+    flex: 1;
+    height: 4px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 2px;
+    overflow: hidden;
+    min-width: 60px;
+  }
+
+  .bar-fill {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.6s ease;
+  }
+
+  .mono { font-family: var(--font-mono); }
+
+  /* WORKLOAD RING */
+  .workload-cell {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .ring-wrap {
+    position: relative;
+    width: 28px; height: 28px;
+    flex-shrink: 0;
+  }
+
+  .ring-wrap svg { transform: rotate(-90deg); }
+
+  .ring-label {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 8px;
+    font-family: var(--font-mono);
+    font-weight: 500;
+  }
+
+  /* ALERTS / ISSUES */
+  .issue-item {
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    cursor: pointer;
+    transition: background 0.1s;
+  }
+
+  .issue-item:last-child { border-bottom: none; }
+  .issue-item:hover { background: var(--card2); }
+
+  .issue-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    margin-top: 4px;
+    flex-shrink: 0;
+  }
+
+  .issue-dot.danger { background: var(--danger); box-shadow: 0 0 6px rgba(239,68,68,0.5); }
+  .issue-dot.warn { background: var(--warn); box-shadow: 0 0 6px rgba(245,158,11,0.4); }
+  .issue-dot.info { background: var(--info); }
+  .issue-dot.green { background: var(--green); }
+
+  .issue-title { font-size: 13px; font-weight: 500; margin-bottom: 2px; }
+  .issue-meta { font-size: 11px; color: var(--muted); font-family: var(--font-mono); }
+
+  .issue-actions {
+    margin-left: auto;
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+
+  .icon-btn {
+    width: 28px; height: 28px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.15s;
+    line-height: 1;
+  }
+
+  .icon-btn:hover { background: var(--card2); color: var(--text); border-color: var(--border2); }
+
+  /* TASKS */
+  .task-item {
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    transition: background 0.1s;
+  }
+
+  .task-item:last-child { border-bottom: none; }
+  .task-item:hover { background: var(--card2); }
+
+  .task-check {
+    width: 18px; height: 18px;
+    border-radius: 5px;
+    border: 1.5px solid var(--border2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 10px;
+    transition: all 0.15s;
+  }
+
+  .task-item.done .task-check {
+    background: var(--green);
+    border-color: var(--green);
+    color: white;
+  }
+
+  .task-text {
+    flex: 1;
+    font-size: 13px;
+  }
+
+  .task-item.done .task-text { color: var(--muted); text-decoration: line-through; }
+
+  /* QUICK RESPONSE */
+  .qr-panel {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+
+  .qr-title {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 15px;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .query-card {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    transition: border-color 0.15s;
+  }
+
+  .query-card:hover { border-color: var(--border2); }
+
+  .query-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+
+  .query-text { font-size: 13.5px; font-weight: 400; line-height: 1.5; flex: 1; }
+  .query-loc { font-size: 11px; color: var(--muted); font-family: var(--font-mono); }
+  .query-time { font-size: 11px; color: var(--muted); font-family: var(--font-mono); white-space: nowrap; }
+
+  .query-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .response-input {
+    width: 100%;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 9px 12px;
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 13px;
+    resize: none;
+    outline: none;
+    transition: border-color 0.15s;
+    height: 64px;
+  }
+
+  .response-input:focus { border-color: var(--accent); }
+  .response-input::placeholder { color: var(--muted2); }
+
+  /* ASSIGN MODAL */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.65);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(2px);
+  }
+
+  .modal-overlay.open { display: flex; }
+
+  .modal {
+    background: var(--card);
+    border: 1px solid var(--border2);
+    border-radius: 16px;
+    padding: 28px;
+    width: 480px;
+    max-width: 95vw;
+  }
+
+  .modal-title {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 18px;
+    margin-bottom: 6px;
+  }
+
+  .modal-sub { font-size: 13px; color: var(--muted); margin-bottom: 20px; }
+
+  .form-group { margin-bottom: 16px; }
+
+  .form-label {
+    display: block;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: var(--muted);
+    font-family: var(--font-mono);
+    margin-bottom: 6px;
+  }
+
+  .form-select, .form-input {
+    width: 100%;
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    border-radius: var(--radius-sm);
+    padding: 9px 12px;
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  .form-select:focus, .form-input:focus { border-color: var(--accent); }
+
+  .modal-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 20px;
+  }
+
+  /* ABOUT / ISSUES TAB */
+  .issue-thread {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 14px;
+    overflow: hidden;
+  }
+
+  .thread-header {
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    transition: background 0.1s;
+  }
+
+  .thread-header:hover { background: var(--card2); }
+
+  .thread-title { font-weight: 500; font-size: 14px; flex: 1; }
+  .thread-meta { font-size: 11px; color: var(--muted); font-family: var(--font-mono); }
+
+  .thread-body {
+    padding: 16px 18px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg3);
+  }
+
+  .thread-body p { font-size: 13px; line-height: 1.6; color: var(--muted); }
+
+  .message-bubble {
+    padding: 12px 18px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  .bubble-text {
+    background: var(--card2);
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 13px;
+    line-height: 1.5;
+    flex: 1;
+  }
+
+  .bubble-text.from-user {
+    background: rgba(0,212,170,0.1);
+    border: 1px solid rgba(0,212,170,0.15);
+  }
+
+  .bubble-meta {
+    font-size: 11px;
+    color: var(--muted);
+    font-family: var(--font-mono);
+    margin-top: 4px;
+  }
+
+  /* CHART SIMPLE */
+  .mini-chart {
+    display: flex;
+    align-items: flex-end;
+    gap: 4px;
+    height: 48px;
+    padding: 0 4px;
+  }
+
+  .bar {
+    flex: 1;
+    border-radius: 3px 3px 0 0;
+    background: rgba(0,212,170,0.3);
+    transition: background 0.15s;
+    min-width: 8px;
+    cursor: pointer;
+  }
+
+  .bar:hover { background: var(--accent); }
+  .bar.today { background: var(--accent); }
+
+  /* ACTIVITY TIMELINE */
+  .timeline-item {
+    display: flex;
+    gap: 12px;
+    padding: 10px 20px;
+    border-bottom: 1px solid var(--border);
+    align-items: flex-start;
+  }
+
+  .timeline-item:last-child { border-bottom: none; }
+
+  .timeline-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    margin-top: 5px;
+    flex-shrink: 0;
+  }
+
+  .timeline-content { flex: 1; }
+  .timeline-text { font-size: 13px; line-height: 1.4; }
+  .timeline-time { font-size: 11px; color: var(--muted); font-family: var(--font-mono); margin-top: 2px; }
+
+  /* RESPONSIVE SCROLL */
+  .table-wrap { overflow-x: auto; }
+
+  /* NOTIFICATIONS */
+  .notif-counter {
+    width: 18px; height: 18px;
+    background: var(--danger);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 700;
+    font-family: var(--font-mono);
+    margin-left: auto;
+  }
+
+  /* FILTER TABS */
+  .filter-tabs {
+    display: flex;
+    gap: 4px;
+    background: var(--bg3);
+    border-radius: var(--radius-sm);
+    padding: 3px;
+  }
+
+  .filter-tab {
+    padding: 5px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-family: var(--font-mono);
+    cursor: pointer;
+    color: var(--muted);
+    transition: all 0.15s;
+    border: none;
+    background: none;
+  }
+
+  .filter-tab.active {
+    background: var(--card2);
+    color: var(--text);
+  }
+
+  /* ASSIGN WORKLOAD SECTION */
+  .workload-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+
+  .staff-workload-card {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 14px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .staff-workload-card:hover { border-color: var(--border2); background: var(--card2); }
+  .staff-workload-card.selected { border-color: var(--accent); background: rgba(0,212,170,0.05); }
+
+  .swc-top { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+  .swc-name { font-size: 13px; font-weight: 500; }
+  .swc-tasks { font-size: 11px; color: var(--muted); font-family: var(--font-mono); }
+
+  .swc-bar-track {
+    height: 5px;
+    background: rgba(255,255,255,0.07);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .swc-bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.5s ease;
+  }
+
+  .scrollable { max-height: 360px; overflow-y: auto; }
+
+  .scrollable::-webkit-scrollbar { width: 4px; }
+  .scrollable::-webkit-scrollbar-track { background: transparent; }
+  .scrollable::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="logo">
+    <div class="logo-mark">
+      <div class="logo-icon">🧹</div>
+      <h1>CleanOps</h1>
+    </div>
+    <p>Supervisor Panel</p>
+  </div>
+
+  <nav class="nav">
+    <div class="nav-label">Overview</div>
+    <div class="nav-item active" onclick="switchTab('dashboard', this)">
+      <span class="icon">⬛</span> Dashboard
+    </div>
+    <div class="nav-item" onclick="switchTab('staff', this)">
+      <span class="icon">👥</span> Staff & Tasks
+    </div>
+
+    <div class="nav-label">Operations</div>
+    <div class="nav-item" onclick="switchTab('issues', this)">
+      <span class="icon">⚠</span> User Reports
+      <span class="badge" id="issue-badge">7</span>
+    </div>
+    <div class="nav-item" onclick="switchTab('quick', this)">
+      <span class="icon">⚡</span> Quick Actions
+      <span class="badge warn">3</span>
+    </div>
+    <div class="nav-item" onclick="switchTab('assign', this)">
+      <span class="icon">📋</span> Assign Tasks
+    </div>
+
+    <div class="nav-label">Info</div>
+    <div class="nav-item" onclick="switchTab('about', this)">
+      <span class="icon">ℹ</span> About & Issues
+    </div>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="supervisor-card">
+      <div class="avatar">RS</div>
+      <div class="sup-info">
+        <p>Rahul Singh</p>
+        <span>Shift Supervisor</span>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN AREA -->
+<div class="main">
+  <div class="topbar">
+    <div class="page-title" id="page-title">Dashboard Overview</div>
+    <div class="topbar-right">
+      <div class="live-badge">
+        <div class="pulse"></div>
+        LIVE · 14:32
+      </div>
+      <button class="btn" onclick="openAssignModal()">+ Assign Task</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- ===== DASHBOARD TAB ===== -->
+    <div class="tab-view active" id="tab-dashboard">
+      <div class="stats-row">
+        <div class="stat-card green">
+          <div class="stat-label">Cleaned Today</div>
+          <div class="stat-value">34</div>
+          <div class="stat-sub">↑ 6 from yesterday</div>
+          <div class="stat-icon">🧼</div>
+        </div>
+        <div class="stat-card warn">
+          <div class="stat-label">Pending Alerts</div>
+          <div class="stat-value">7</div>
+          <div class="stat-sub">3 high priority</div>
+          <div class="stat-icon">⚠</div>
+        </div>
+        <div class="stat-card info">
+          <div class="stat-label">Staff on Shift</div>
+          <div class="stat-value">8</div>
+          <div class="stat-sub">2 on break</div>
+          <div class="stat-icon">👥</div>
+        </div>
+        <div class="stat-card danger">
+          <div class="stat-label">Avg Condition</div>
+          <div class="stat-value">82<span style="font-size:16px">%</span></div>
+          <div class="stat-sub">↓ 4% from last shift</div>
+          <div class="stat-icon">📊</div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <!-- Recent Activity -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Recent Activity</div>
+              <div class="section-sub">Live cleaning log</div>
+            </div>
+            <div class="filter-tabs">
+              <button class="filter-tab active">All</button>
+              <button class="filter-tab">Alerts</button>
+            </div>
+          </div>
+          <div class="scrollable" id="activity-list">
+            <div class="timeline-item">
+              <div class="timeline-dot" style="background:var(--green)"></div>
+              <div class="timeline-content">
+                <div class="timeline-text"><strong>Block A — WR01</strong> cleaned by Priya M.</div>
+                <div class="timeline-time">14:28 · Condition: 94% · 12 min</div>
+              </div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-dot" style="background:var(--warn)"></div>
+              <div class="timeline-content">
+                <div class="timeline-text"><strong>Block C — WR03</strong> reported low supplies</div>
+                <div class="timeline-time">14:15 · Guest report via QR</div>
+              </div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-dot" style="background:var(--green)"></div>
+              <div class="timeline-content">
+                <div class="timeline-text"><strong>Block B — WR02</strong> cleaned by Arjun T.</div>
+                <div class="timeline-time">14:02 · Condition: 88% · 9 min</div>
+              </div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-dot" style="background:var(--danger)"></div>
+              <div class="timeline-content">
+                <div class="timeline-text"><strong>Block D — WR05</strong> — URGENT: water leakage</div>
+                <div class="timeline-time">13:54 · User report · Escalated</div>
+              </div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-dot" style="background:var(--green)"></div>
+              <div class="timeline-content">
+                <div class="timeline-text"><strong>Block A — WR04</strong> cleaned by Meena R.</div>
+                <div class="timeline-time">13:40 · Condition: 91% · 11 min</div>
+              </div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-dot" style="background:var(--info)"></div>
+              <div class="timeline-content">
+                <div class="timeline-text"><strong>Block B — WR01</strong> inspection scheduled</div>
+                <div class="timeline-time">13:30 · Auto-assigned · Karan V.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Today's Schedule -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Today's Schedule</div>
+              <div class="section-sub">Pending &amp; completed</div>
+            </div>
+            <span class="pill green">4 done</span>
+          </div>
+          <div class="scrollable">
+            <div class="task-item done" onclick="toggleTask(this)">
+              <div class="task-check">✓</div>
+              <div class="task-text">Block A — WR01 Morning clean</div>
+              <span class="pill muted">09:00</span>
+            </div>
+            <div class="task-item done" onclick="toggleTask(this)">
+              <div class="task-check">✓</div>
+              <div class="task-text">Block B — WR02 Routine inspection</div>
+              <span class="pill muted">10:30</span>
+            </div>
+            <div class="task-item done" onclick="toggleTask(this)">
+              <div class="task-check">✓</div>
+              <div class="task-text">Block C — WR01 Deep clean</div>
+              <span class="pill muted">11:00</span>
+            </div>
+            <div class="task-item done" onclick="toggleTask(this)">
+              <div class="task-check">✓</div>
+              <div class="task-text">Block A — WR03 Supply restock</div>
+              <span class="pill muted">12:15</span>
+            </div>
+            <div class="task-item" onclick="toggleTask(this)">
+              <div class="task-check"></div>
+              <div class="task-text">Block D — WR05 Emergency repair</div>
+              <span class="pill danger">URGENT</span>
+            </div>
+            <div class="task-item" onclick="toggleTask(this)">
+              <div class="task-check"></div>
+              <div class="task-text">Block B — WR03 Afternoon clean</div>
+              <span class="pill warn">15:00</span>
+            </div>
+            <div class="task-item" onclick="toggleTask(this)">
+              <div class="task-check"></div>
+              <div class="task-text">Block C — WR04 Inspection</div>
+              <span class="pill info">16:00</span>
+            </div>
+            <div class="task-item" onclick="toggleTask(this)">
+              <div class="task-check"></div>
+              <div class="task-text">Block A — WR02 End-of-day clean</div>
+              <span class="pill muted">17:30</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cleaning frequency mini chart -->
+      <div class="card" style="margin-bottom:20px">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Cleanings This Week</div>
+            <div class="section-sub">Daily total across all washrooms</div>
+          </div>
+          <span class="pill info">Tue 07 Apr</span>
+        </div>
+        <div style="padding:16px 20px">
+          <div class="mini-chart">
+            <div class="bar" style="height:55%" title="Mon: 31"></div>
+            <div class="bar today" style="height:60%" title="Tue: 34 (today)"></div>
+            <div class="bar" style="height:40%" title="Wed"></div>
+            <div class="bar" style="height:35%" title="Thu"></div>
+            <div class="bar" style="height:50%" title="Fri"></div>
+            <div class="bar" style="height:70%" title="Sat"></div>
+            <div class="bar" style="height:65%" title="Sun"></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;margin-top:6px">
+            <span style="font-size:11px;color:var(--muted);font-family:var(--font-mono)">Mon</span>
+            <span style="font-size:11px;color:var(--accent);font-family:var(--font-mono);font-weight:500">Tue</span>
+            <span style="font-size:11px;color:var(--muted);font-family:var(--font-mono)">Wed</span>
+            <span style="font-size:11px;color:var(--muted);font-family:var(--font-mono)">Thu</span>
+            <span style="font-size:11px;color:var(--muted);font-family:var(--font-mono)">Fri</span>
+            <span style="font-size:11px;color:var(--muted);font-family:var(--font-mono)">Sat</span>
+            <span style="font-size:11px;color:var(--muted);font-family:var(--font-mono)">Sun</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== STAFF TAB ===== -->
+    <div class="tab-view" id="tab-staff">
+      <div class="section-header">
+        <div>
+          <div class="section-title">Staff & Task Management</div>
+          <div class="section-sub">All 8 staff members · Smart workload balancing active</div>
+        </div>
+        <button class="btn primary" onclick="autoBalance()">⚖ Auto Balance</button>
+      </div>
+
+      <div class="card" style="margin-bottom:20px">
+        <div class="card-header">
+          <div class="card-title">Staff Overview</div>
+          <span class="pill green">8 active</span>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Staff Member</th>
+                <th>Cleanings Today</th>
+                <th>Last Cleaned</th>
+                <th>Avg Condition</th>
+                <th>Workload</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="staff-tbody">
+              <!-- Rendered by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Assigned Tasks</div>
+          <div class="filter-tabs">
+            <button class="filter-tab active" onclick="filterTasks('all', this)">All</button>
+            <button class="filter-tab" onclick="filterTasks('pending', this)">Pending</button>
+            <button class="filter-tab" onclick="filterTasks('done', this)">Done</button>
+          </div>
+        </div>
+        <div class="scrollable" id="tasks-list">
+          <!-- Rendered by JS -->
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== ISSUES TAB ===== -->
+    <div class="tab-view" id="tab-issues">
+      <div class="section-header">
+        <div>
+          <div class="section-title">User & Guest Reports</div>
+          <div class="section-sub">Queries submitted via QR scan · Real-time feed</div>
+        </div>
+        <div class="filter-tabs">
+          <button class="filter-tab active" onclick="filterIssues('all', this)">All</button>
+          <button class="filter-tab" onclick="filterIssues('urgent', this)">Urgent</button>
+          <button class="filter-tab" onclick="filterIssues('open', this)">Open</button>
+          <button class="filter-tab" onclick="filterIssues('resolved', this)">Resolved</button>
+        </div>
+      </div>
+
+      <div class="card" id="issues-card">
+        <div id="issues-container">
+          <!-- Rendered by JS -->
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== QUICK ACTIONS TAB ===== -->
+    <div class="tab-view" id="tab-quick">
+      <div class="section-header">
+        <div>
+          <div class="section-title">Quick Actions & Responses</div>
+          <div class="section-sub">Respond to live user queries instantly</div>
+        </div>
+        <span class="pill warn">3 awaiting response</span>
+      </div>
+
+      <div id="quick-queries">
+        <!-- Rendered by JS -->
+      </div>
+    </div>
+
+    <!-- ===== ASSIGN TASKS TAB ===== -->
+    <div class="tab-view" id="tab-assign">
+      <div class="section-header">
+        <div>
+          <div class="section-title">Smart Task Assignment</div>
+          <div class="section-sub">Distribute work equally based on current load</div>
+        </div>
+        <button class="btn primary" onclick="autoBalance()">⚖ Auto-Balance All</button>
+      </div>
+
+      <div class="grid-2" style="margin-bottom:20px">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Current Workload</div>
+          </div>
+          <div style="padding:16px">
+            <div class="workload-grid" id="workload-grid">
+              <!-- Rendered by JS -->
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">New Assignment</div>
+          </div>
+          <div style="padding:20px">
+            <div class="form-group">
+              <label class="form-label">Washroom</label>
+              <select class="form-select" id="assign-room">
+                <option>Block A — WR01 (Ladies)</option>
+                <option>Block A — WR02 (Gents)</option>
+                <option>Block B — WR01 (Ladies)</option>
+                <option>Block B — WR02 (Gents)</option>
+                <option>Block C — WR03 (Common)</option>
+                <option>Block D — WR05 (Ladies)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Task Type</label>
+              <select class="form-select" id="assign-type">
+                <option>Routine Clean</option>
+                <option>Deep Clean</option>
+                <option>Supply Restock</option>
+                <option>Inspection</option>
+                <option>Emergency Repair</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Assign To (auto-suggested: lowest load)</label>
+              <select class="form-select" id="assign-staff-select">
+                <!-- Rendered by JS -->
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Priority</label>
+              <select class="form-select" id="assign-priority">
+                <option>Normal</option>
+                <option>High</option>
+                <option>Urgent</option>
+              </select>
+            </div>
+            <button class="btn primary" style="width:100%" onclick="createAssignment()">Assign Task</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== ABOUT TAB ===== -->
+    <div class="tab-view" id="tab-about">
+      <div class="section-header">
+        <div>
+          <div class="section-title">About CleanOps & Issue Tracker</div>
+          <div class="section-sub">System info, persistent issues, and resolution history</div>
+        </div>
+      </div>
+
+      <div class="grid-2" style="margin-bottom:20px">
+        <div class="card">
+          <div class="card-header"><div class="card-title">About CleanOps</div></div>
+          <div style="padding:20px">
+            <p style="font-size:13.5px;line-height:1.7;color:var(--muted);margin-bottom:14px">
+              CleanOps is a smart washroom monitoring and alert system. QR codes placed in each washroom link users and guests to a live report page where they can flag issues, rate cleanliness, and request immediate attention.
+            </p>
+            <p style="font-size:13.5px;line-height:1.7;color:var(--muted);margin-bottom:14px">
+              Reports flow directly to this supervisor dashboard, where tasks are auto-assigned to the staff member with the lowest current workload. Supervisors can override, reassign, or respond to queries in real time.
+            </p>
+            <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:16px">
+              <span class="pill info">v2.4.1</span>
+              <span class="pill green">System Online</span>
+              <span class="pill muted">12 Washrooms</span>
+              <span class="pill muted">8 QR Codes Active</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><div class="card-title">Persistent Issues</div></div>
+          <div style="padding:16px">
+            <div class="issue-item" style="padding:10px 4px">
+              <div class="issue-dot danger"></div>
+              <div>
+                <div class="issue-title">Block D — WR05: Recurring water leakage</div>
+                <div class="issue-meta">Reported 4× in 30 days · Maintenance escalated</div>
+              </div>
+            </div>
+            <div class="issue-item" style="padding:10px 4px">
+              <div class="issue-dot warn"></div>
+              <div>
+                <div class="issue-title">Block C — WR03: Soap dispenser broken</div>
+                <div class="issue-meta">Reported 2× this week · Replacement ordered</div>
+              </div>
+            </div>
+            <div class="issue-item" style="padding:10px 4px">
+              <div class="issue-dot warn"></div>
+              <div>
+                <div class="issue-title">Block B — WR01: Poor ventilation</div>
+                <div class="issue-meta">Ongoing · Facilities team notified</div>
+              </div>
+            </div>
+            <div class="issue-item" style="padding:10px 4px;border-bottom:none">
+              <div class="issue-dot green"></div>
+              <div>
+                <div class="issue-title">Block A — WR02: Broken lock</div>
+                <div class="issue-meta">Resolved 05 Apr · Lock replaced</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Issue threads -->
+      <div class="section-header">
+        <div class="section-title" style="font-size:15px">Issue Threads</div>
+      </div>
+
+      <div class="issue-thread">
+        <div class="thread-header" onclick="toggleThread(this)">
+          <span class="issue-dot danger"></span>
+          <span class="thread-title">Block D WR05 — Water leakage near hand basin</span>
+          <span class="pill danger">Open</span>
+          <span class="thread-meta" style="margin-left:12px">3 messages</span>
+        </div>
+        <div class="thread-body">
+          <p>Guest reported standing water near the hand basin. Maintenance was notified on 06 Apr but issue persists. Plumber visit scheduled for 08 Apr.</p>
+        </div>
+        <div class="message-bubble">
+          <div class="avatar-sm" style="background: linear-gradient(135deg,#ef4444,#b91c1c);flex-shrink:0">GS</div>
+          <div>
+            <div class="bubble-text">There's water all over the floor near the sink. It's been there since morning.</div>
+            <div class="bubble-meta">Guest · 07 Apr 13:54 · Block D WR05</div>
+          </div>
+        </div>
+        <div class="message-bubble">
+          <div class="avatar-sm" style="background: linear-gradient(135deg,var(--accent),#0d9488);flex-shrink:0">RS</div>
+          <div>
+            <div class="bubble-text from-user">Thank you for reporting. We've dispatched Karan to assess immediately. A plumber is scheduled for tomorrow morning.</div>
+            <div class="bubble-meta">Rahul (Supervisor) · 07 Apr 14:02</div>
+          </div>
+        </div>
+        <div style="padding:12px 18px;border-top:1px solid var(--border)">
+          <div style="display:flex;gap:8px">
+            <textarea class="response-input" placeholder="Reply to this thread..." style="height:48px"></textarea>
+            <button class="btn primary" style="white-space:nowrap">Send</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="issue-thread">
+        <div class="thread-header" onclick="toggleThread(this)">
+          <span class="issue-dot warn"></span>
+          <span class="thread-title">Block C WR03 — Soap dispenser not working</span>
+          <span class="pill warn">In Progress</span>
+          <span class="thread-meta" style="margin-left:12px">2 messages</span>
+        </div>
+        <div class="thread-body" style="display:none">
+          <p>Multiple users reported the soap dispenser is empty/broken. Replacement unit ordered from supplier. ETA: 2 days.</p>
+        </div>
+      </div>
+
+      <div class="issue-thread">
+        <div class="thread-header" onclick="toggleThread(this)">
+          <span class="issue-dot green"></span>
+          <span class="thread-title">Block A WR02 — Broken cubicle lock</span>
+          <span class="pill green">Resolved</span>
+          <span class="thread-meta" style="margin-left:12px">4 messages</span>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div>
+
+<!-- ASSIGN MODAL -->
+<div class="modal-overlay" id="assign-modal">
+  <div class="modal">
+    <div class="modal-title">Assign New Task</div>
+    <div class="modal-sub">Select washroom, task type, and staff member</div>
+    <div class="form-group">
+      <label class="form-label">Washroom Location</label>
+      <select class="form-select">
+        <option>Block A — WR01 (Ladies)</option>
+        <option>Block A — WR02 (Gents)</option>
+        <option>Block B — WR01 (Ladies)</option>
+        <option>Block D — WR05 (Ladies) — URGENT</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Task Type</label>
+      <select class="form-select">
+        <option>Routine Clean</option>
+        <option>Deep Clean</option>
+        <option>Supply Restock</option>
+        <option>Emergency Repair</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Staff Member (auto: lowest load)</label>
+      <select class="form-select" id="modal-staff-select"></select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Notes</label>
+      <input type="text" class="form-input" placeholder="Any special instructions...">
+    </div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal()">Cancel</button>
+      <button class="btn primary" onclick="closeModal(); showToast('Task assigned successfully!')">Assign Task</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast" style="position:fixed;bottom:28px;right:28px;background:var(--card2);border:1px solid var(--border2);border-radius:10px;padding:12px 18px;font-size:13px;color:var(--text);transform:translateY(80px);opacity:0;transition:all 0.3s;z-index:200;display:flex;align-items:center;gap:10px">
+  <span style="color:var(--accent)">✓</span>
+  <span id="toast-msg"></span>
+</div>
+
+<script>
+// ===== DATA =====
+const staff = [
+  { id:1, name:'Priya Mehta',   initials:'PM', color:'#3b82f6', role:'Senior Cleaner', cleanings:6, lastCleaned:'14:28', condition:94, workload:75, status:'active', tasks:3 },
+  { id:2, name:'Arjun Tiwari',  initials:'AT', color:'#8b5cf6', role:'Cleaner',        cleanings:5, lastCleaned:'14:02', condition:88, workload:62, status:'active', tasks:2 },
+  { id:3, name:'Meena Rao',     initials:'MR', color:'#10b981', role:'Senior Cleaner', cleanings:4, lastCleaned:'13:40', condition:91, workload:50, status:'break',  tasks:2 },
+  { id:4, name:'Karan Verma',   initials:'KV', color:'#f59e0b', role:'Cleaner',        cleanings:5, lastCleaned:'13:10', condition:86, workload:62, status:'active', tasks:3 },
+  { id:5, name:'Sunita Bose',   initials:'SB', color:'#ef4444', role:'Cleaner',        cleanings:3, lastCleaned:'12:45', condition:89, workload:37, status:'active', tasks:1 },
+  { id:6, name:'Deepak Nair',   initials:'DN', color:'#06b6d4', role:'Senior Cleaner', cleanings:6, lastCleaned:'14:10', condition:92, workload:75, status:'active', tasks:3 },
+  { id:7, name:'Lakshmi Iyer',  initials:'LI', color:'#a855f7', role:'Cleaner',        cleanings:2, lastCleaned:'11:30', condition:85, workload:25, status:'break',  tasks:1 },
+  { id:8, name:'Ravi Kumar',    initials:'RK', color:'#f97316', role:'Cleaner',        cleanings:3, lastCleaned:'13:00', condition:87, workload:37, status:'active', tasks:2 },
+];
+
+const allTasks = [
+  { staff:'Priya Mehta',   location:'Block A — WR01', type:'Routine Clean',    time:'15:00', status:'pending', priority:'normal' },
+  { staff:'Priya Mehta',   location:'Block A — WR03', type:'Supply Restock',   time:'16:00', status:'pending', priority:'normal' },
+  { staff:'Priya Mehta',   location:'Block A — WR01', type:'Morning Clean',    time:'09:00', status:'done',    priority:'normal' },
+  { staff:'Arjun Tiwari',  location:'Block B — WR02', type:'Routine Clean',    time:'15:30', status:'pending', priority:'normal' },
+  { staff:'Arjun Tiwari',  location:'Block B — WR02', type:'Routine Clean',    time:'10:00', status:'done',    priority:'normal' },
+  { staff:'Karan Verma',   location:'Block D — WR05', type:'Emergency Repair', time:'NOW',   status:'pending', priority:'urgent' },
+  { staff:'Karan Verma',   location:'Block B — WR01', type:'Inspection',       time:'16:00', status:'pending', priority:'normal' },
+  { staff:'Sunita Bose',   location:'Block C — WR04', type:'Deep Clean',       time:'14:00', status:'pending', priority:'high'   },
+  { staff:'Deepak Nair',   location:'Block B — WR03', type:'Afternoon Clean',  time:'15:00', status:'pending', priority:'normal' },
+  { staff:'Meena Rao',     location:'Block A — WR04', type:'Routine Clean',    time:'11:00', status:'done',    priority:'normal' },
+  { staff:'Ravi Kumar',    location:'Block C — WR03', type:'Supply Restock',   time:'15:00', status:'pending', priority:'high'   },
+  { staff:'Lakshmi Iyer',  location:'Block B — WR04', type:'Routine Clean',    time:'16:30', status:'pending', priority:'normal' },
+];
+
+const issues = [
+  { id:1, title:'Water leakage near basin', loc:'Block D — WR05', source:'Guest', time:'13:54', severity:'danger', status:'open',     assigned:'Karan Verma',  desc:'Standing water on floor near hand basin.' },
+  { id:2, title:'Out of toilet paper',      loc:'Block C — WR03', source:'User',  time:'14:05', severity:'warn',   status:'open',     assigned:'Ravi Kumar',   desc:'All cubicles empty, supply needed urgently.' },
+  { id:3, title:'Soap dispenser broken',    loc:'Block C — WR03', source:'Guest', time:'13:30', severity:'warn',   status:'progress', assigned:'Deepak Nair',  desc:'Wall-mounted dispenser not dispensing.' },
+  { id:4, title:'Foul smell reported',      loc:'Block B — WR01', source:'Guest', time:'12:50', severity:'warn',   status:'open',     assigned:'Arjun Tiwari', desc:'Persistent bad odour, poor ventilation.' },
+  { id:5, title:'Light not working',        loc:'Block A — WR02', source:'User',  time:'12:10', severity:'info',   status:'progress', assigned:'Meena Rao',    desc:'Main light flickering and off.' },
+  { id:6, title:'Mirror is dirty',          loc:'Block B — WR02', source:'Guest', time:'11:45', severity:'info',   status:'open',     assigned:'Sunita Bose',  desc:'Large mirror completely smudged.' },
+  { id:7, title:'Floor wet — slipping hazard',loc:'Block A — WR01',source:'User', time:'11:20', severity:'danger', status:'resolved', assigned:'Priya Mehta',  desc:'Water from overflowing mop bucket. Resolved.' },
+];
+
+const quickQueries = [
+  { id:1, msg:'No toilet paper in any stall. Please help!', loc:'Block C — WR03', time:'2 min ago', type:'Guest', severity:'danger' },
+  { id:2, msg:'The hand dryer is making a loud noise and sparks.', loc:'Block A — WR02', time:'8 min ago', type:'User', severity:'danger' },
+  { id:3, msg:'Could use a clean — looks a bit dirty in here.', loc:'Block B — WR01', time:'15 min ago', type:'Guest', severity:'warn' },
+];
+
+// ===== RENDER STAFF TABLE =====
+function renderStaffTable() {
+  const tbody = document.getElementById('staff-tbody');
+  tbody.innerHTML = staff.map(s => {
+    const condColor = s.condition >= 90 ? 'var(--green)' : s.condition >= 80 ? 'var(--warn)' : 'var(--danger)';
+    const wlColor   = s.workload >= 70  ? 'var(--danger)' : s.workload >= 50 ? 'var(--warn)' : 'var(--green)';
+    const statusPill = s.status === 'active' ? 'green' : 'muted';
+    const progress = `${s.workload}%`;
+    return `
+      <tr>
+        <td>
+          <div class="staff-info">
+            <div class="avatar-sm" style="background:${s.color}">${s.initials}</div>
+            <div>
+              <div class="staff-name">${s.name}</div>
+              <div class="staff-role">${s.role}</div>
+            </div>
+          </div>
+        </td>
+        <td><span class="mono" style="font-size:15px;font-weight:600">${s.cleanings}</span></td>
+        <td><span class="mono" style="color:var(--muted)">${s.lastCleaned}</span></td>
+        <td>
+          <div class="condition-bar">
+            <div class="bar-track"><div class="bar-fill" style="width:${s.condition}%;background:${condColor}"></div></div>
+            <span class="mono" style="font-size:12px;color:${condColor};min-width:32px">${s.condition}%</span>
+          </div>
+        </td>
+        <td>
+          <div class="workload-cell">
+            <div class="ring-wrap">
+              <svg width="28" height="28" viewBox="0 0 28 28">
+                <circle cx="14" cy="14" r="11" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="3"/>
+                <circle cx="14" cy="14" r="11" fill="none" stroke="${wlColor}" stroke-width="3"
+                  stroke-dasharray="${(s.workload/100)*69.1} 69.1" stroke-linecap="round"/>
+              </svg>
+              <div class="ring-label" style="color:${wlColor}">${s.workload}</div>
+            </div>
+            <span class="mono" style="font-size:11px;color:var(--muted)">${s.tasks} tasks</span>
+          </div>
+        </td>
+        <td><span class="pill ${statusPill}">${s.status}</span></td>
+        <td>
+          <div style="display:flex;gap:6px">
+            <button class="icon-btn" title="Assign task" onclick="openAssignModal()">+</button>
+            <button class="icon-btn" title="View profile" onclick="showToast('Opening ${s.name} profile…')">→</button>
+          </div>
+        </td>
+      </tr>`;
+  }).join('');
+}
+
+// ===== RENDER TASKS =====
+function renderTasks(filter = 'all') {
+  const list = document.getElementById('tasks-list');
+  const filtered = filter === 'all' ? allTasks : allTasks.filter(t => t.status === filter);
+  list.innerHTML = filtered.map(t => {
+    const done = t.status === 'done';
+    const pClass = t.priority === 'urgent' ? 'danger' : t.priority === 'high' ? 'warn' : 'muted';
+    return `
+      <div class="task-item ${done ? 'done' : ''}" onclick="toggleTask(this)">
+        <div class="task-check">${done ? '✓' : ''}</div>
+        <div style="flex:1">
+          <div class="task-text" style="text-decoration:${done?'line-through':'none'};color:${done?'var(--muted)':'var(--text)'}">
+            ${t.location} — ${t.type}
+          </div>
+          <div style="font-size:11px;color:var(--muted);font-family:var(--font-mono);margin-top:2px">${t.staff}</div>
+        </div>
+        <span class="pill ${pClass}">${t.priority === 'urgent' ? 'URGENT' : t.time}</span>
+      </div>`;
+  }).join('');
+}
+
+// ===== RENDER ISSUES =====
+function renderIssues(filter = 'all') {
+  const cont = document.getElementById('issues-container');
+  const filtered = filter === 'all' ? issues :
+    filter === 'urgent' ? issues.filter(i => i.severity === 'danger') :
+    filter === 'open'   ? issues.filter(i => i.status === 'open') :
+    issues.filter(i => i.status === 'resolved');
+
+  cont.innerHTML = filtered.map(i => {
+    const statusLabel = i.status === 'open' ? 'Open' : i.status === 'progress' ? 'In Progress' : 'Resolved';
+    const statusClass = i.status === 'open' ? 'danger' : i.status === 'progress' ? 'warn' : 'green';
+    return `
+      <div class="issue-item">
+        <div class="issue-dot ${i.severity}"></div>
+        <div style="flex:1">
+          <div class="issue-title">${i.title}</div>
+          <div class="issue-meta">${i.loc} · ${i.source} · ${i.time} · Assigned: ${i.assigned}</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:4px">${i.desc}</div>
+        </div>
+        <div class="issue-actions">
+          <span class="pill ${statusClass}">${statusLabel}</span>
+          <button class="icon-btn" onclick="showToast('Responding to: ${i.title}'); switchTab('quick', null)">↗</button>
+          <button class="icon-btn" onclick="resolveIssue(${i.id})">✓</button>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+// ===== RENDER QUICK QUERIES =====
+function renderQuickQueries() {
+  const cont = document.getElementById('quick-queries');
+  cont.innerHTML = quickQueries.map(q => `
+    <div class="qr-panel">
+      <div class="qr-title">
+        <span class="issue-dot ${q.severity}" style="display:inline-block"></span>
+        ${q.loc}
+        <span class="pill ${q.severity === 'danger' ? 'danger' : 'warn'}" style="margin-left:4px">${q.type}</span>
+        <span style="font-size:12px;color:var(--muted);font-family:var(--font-mono);font-weight:400;margin-left:auto">${q.time}</span>
+      </div>
+      <div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;margin-bottom:14px;font-size:13.5px;line-height:1.5">
+        "${q.msg}"
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap">
+        <button class="btn" onclick="quickRespond(${q.id}, 'On our way!')">On our way!</button>
+        <button class="btn" onclick="quickRespond(${q.id}, 'Staff dispatched')">Staff dispatched</button>
+        <button class="btn" onclick="quickRespond(${q.id}, 'Being addressed now')">Being addressed</button>
+        <button class="btn" onclick="quickRespond(${q.id}, 'Will resolve in 10 mins')">10 min ETA</button>
+      </div>
+      <div style="display:flex;gap:8px">
+        <textarea class="response-input" id="qr-input-${q.id}" placeholder="Or type a custom response..."></textarea>
+        <button class="btn primary" onclick="quickRespond(${q.id}, document.getElementById('qr-input-${q.id}').value || 'On our way!')">Send ↗</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ===== RENDER WORKLOAD GRID =====
+function renderWorkloadGrid() {
+  const sorted = [...staff].sort((a,b) => a.workload - b.workload);
+  const cont = document.getElementById('workload-grid');
+  const sel  = document.getElementById('assign-staff-select');
+  const sel2 = document.getElementById('modal-staff-select');
+  cont.innerHTML = sorted.map(s => {
+    const wlColor = s.workload >= 70 ? 'var(--danger)' : s.workload >= 50 ? 'var(--warn)' : 'var(--green)';
+    return `
+      <div class="staff-workload-card" onclick="selectStaff(this, '${s.name}')">
+        <div class="swc-top">
+          <div class="avatar-sm" style="background:${s.color};width:26px;height:26px;font-size:10px">${s.initials}</div>
+          <div>
+            <div class="swc-name">${s.name.split(' ')[0]}</div>
+            <div class="swc-tasks">${s.tasks} tasks</div>
+          </div>
+        </div>
+        <div class="swc-bar-track">
+          <div class="swc-bar-fill" style="width:${s.workload}%;background:${wlColor}"></div>
+        </div>
+        <div style="font-size:10px;color:${wlColor};font-family:var(--font-mono);margin-top:4px">${s.workload}%</div>
+      </div>`;
+  }).join('');
+
+  const opts = sorted.map(s => `<option value="${s.name}">${s.name} (${s.workload}% load)</option>`).join('');
+  if (sel)  sel.innerHTML  = opts;
+  if (sel2) sel2.innerHTML = opts;
+}
+
+function selectStaff(el, name) {
+  document.querySelectorAll('.staff-workload-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  const sel = document.getElementById('assign-staff-select');
+  if (sel) { for (let o of sel.options) if (o.value === name) { o.selected = true; break; } }
+}
+
+// ===== INTERACTIONS =====
+function switchTab(tab, el) {
+  document.querySelectorAll('.tab-view').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-'+tab).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  if (el) el.classList.add('active');
+  const titles = { dashboard:'Dashboard Overview', staff:'Staff & Task Management', issues:'User & Guest Reports', quick:'Quick Actions', assign:'Assign Tasks', about:'About & Issue Tracker' };
+  document.getElementById('page-title').textContent = titles[tab] || tab;
+}
+
+function toggleTask(el) {
+  el.classList.toggle('done');
+  const check = el.querySelector('.task-check');
+  const text  = el.querySelector('.task-text');
+  if (el.classList.contains('done')) { check.textContent = '✓'; } else { check.textContent = ''; }
+}
+
+function filterTasks(f, el) {
+  document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+  if (el) el.classList.add('active');
+  renderTasks(f);
+}
+
+function filterIssues(f, el) {
+  document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+  if (el) el.classList.add('active');
+  renderIssues(f);
+}
+
+function resolveIssue(id) {
+  const issue = issues.find(i => i.id === id);
+  if (issue) { issue.status = 'resolved'; renderIssues('all'); showToast('Issue marked as resolved'); }
+}
+
+function quickRespond(id, msg) {
+  showToast('Response sent: "' + msg.substring(0,30) + (msg.length>30?'…':'') + '"');
+  const idx = quickQueries.findIndex(q => q.id === id);
+  if (idx !== -1) { quickQueries.splice(idx, 1); renderQuickQueries(); }
+  const badge = document.querySelector('.badge.warn');
+  if (badge) badge.textContent = quickQueries.length;
+}
+
+function openAssignModal() {
+  document.getElementById('assign-modal').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('assign-modal').classList.remove('open');
+}
+
+function createAssignment() {
+  const room = document.getElementById('assign-room').value;
+  const type = document.getElementById('assign-type').value;
+  const staffSel = document.getElementById('assign-staff-select').value;
+  showToast(`Assigned "${type}" at ${room} to ${staffSel}`);
+}
+
+function autoBalance() {
+  showToast('Auto-balancing complete — tasks redistributed equally!');
+}
+
+function toggleThread(header) {
+  const body = header.nextElementSibling;
+  if (body && body.classList.contains('thread-body')) {
+    body.style.display = body.style.display === 'none' ? 'block' : 'none';
+  }
+}
+
+function showToast(msg) {
+  const toast = document.getElementById('toast');
+  document.getElementById('toast-msg').textContent = msg;
+  toast.style.transform = 'translateY(0)';
+  toast.style.opacity = '1';
+  setTimeout(() => { toast.style.transform = 'translateY(80px)'; toast.style.opacity = '0'; }, 3000);
+}
+
+// Close modal on overlay click
+document.getElementById('assign-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+
+// Animate bars on load
+function animateBars() {
+  const fills = document.querySelectorAll('.bar-fill, .swc-bar-fill');
+  fills.forEach(f => {
+    const target = f.style.width;
+    f.style.width = '0';
+    requestAnimationFrame(() => { setTimeout(() => { f.style.width = target; }, 50); });
+  });
+}
+
+// ===== INIT =====
+renderStaffTable();
+renderTasks();
+renderIssues();
+renderQuickQueries();
+renderWorkloadGrid();
+setTimeout(animateBars, 100);
+
+// Live clock
+setInterval(() => {
+  const now = new Date();
+  const t = now.toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit' });
+  const el = document.querySelector('.live-badge');
+  if (el) el.innerHTML = `<div class="pulse"></div>LIVE · ${t}`;
+}, 5000);
+</script>
+</body>
+</html>

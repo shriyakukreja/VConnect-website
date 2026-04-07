@@ -1,0 +1,1337 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VConnect — Staff Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0b0f14;
+    --bg2: #111720;
+    --bg3: #161d28;
+    --card: #1a2233;
+    --card2: #1f2a3d;
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(255,255,255,0.12);
+    --text: #e8edf5;
+    --muted: #7a8ba3;
+    --muted2: #4a5a72;
+    --accent: #00d4aa;
+    --accent2: #00a882;
+    --warn: #f59e0b;
+    --danger: #ef4444;
+    --info: #3b82f6;
+    --green: #10b981;
+    --purple: #8b5cf6;
+    --font-display: 'Syne', sans-serif;
+    --font-body: 'DM Sans', sans-serif;
+    --font-mono: 'DM Mono', monospace;
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 14px;
+    min-height: 100vh;
+    display: flex;
+  }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: 220px;
+    min-height: 100vh;
+    background: var(--bg2);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    flex-shrink: 0;
+  }
+
+  .logo {
+    padding: 28px 20px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .logo-mark {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 4px;
+  }
+
+  .logo-icon {
+    width: 32px; height: 32px;
+    background: var(--accent);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+  }
+
+  .logo h1 {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 18px;
+    letter-spacing: -0.5px;
+    color: var(--text);
+  }
+
+  .logo p {
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    font-family: var(--font-mono);
+  }
+
+  .nav {
+    padding: 16px 12px;
+    flex: 1;
+  }
+
+  .nav-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--muted2);
+    font-family: var(--font-mono);
+    padding: 8px 8px 4px;
+    margin-top: 8px;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 10px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    color: var(--muted);
+    font-size: 13.5px;
+    font-weight: 400;
+    transition: all 0.15s;
+    text-decoration: none;
+    margin-bottom: 2px;
+  }
+
+  .nav-item:hover { background: var(--card); color: var(--text); }
+  .nav-item.active { background: rgba(0,212,170,0.1); color: var(--accent); }
+  .nav-item .icon { font-size: 15px; width: 18px; text-align: center; }
+
+  .badge {
+    margin-left: auto;
+    background: var(--danger);
+    color: white;
+    font-size: 10px;
+    font-family: var(--font-mono);
+    padding: 1px 6px;
+    border-radius: 20px;
+    font-weight: 500;
+  }
+  .badge.warn { background: var(--warn); color: #0b0f14; }
+
+  .sidebar-footer {
+    padding: 16px;
+    border-top: 1px solid var(--border);
+  }
+
+  .staff-card {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    background: var(--card);
+    border-radius: var(--radius-sm);
+  }
+
+  .avatar {
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--purple));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 13px;
+    color: white;
+    flex-shrink: 0;
+  }
+
+  .staff-info-footer p { font-size: 13px; font-weight: 500; color: var(--text); }
+  .staff-info-footer span { font-size: 11px; color: var(--muted); }
+
+  /* MAIN */
+  .main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  .topbar {
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+
+  .page-title {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 20px;
+    letter-spacing: -0.5px;
+  }
+
+  .topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .live-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-family: var(--font-mono);
+    color: var(--accent);
+    background: rgba(0,212,170,0.1);
+    padding: 5px 12px;
+    border-radius: 20px;
+    border: 1px solid rgba(0,212,170,0.2);
+  }
+
+  .pulse {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--accent);
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.85); }
+  }
+
+  .btn {
+    padding: 7px 16px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border2);
+    background: var(--card);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .btn:hover { background: var(--card2); border-color: var(--border2); }
+
+  .btn.primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #0b0f14;
+    font-weight: 500;
+  }
+
+  .btn.primary:hover { background: var(--accent2); }
+
+  /* CONTENT */
+  .content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 28px;
+  }
+
+  .tab-view { display: none; }
+  .tab-view.active { display: block; }
+
+  /* STAT CARDS */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+
+  .stat-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+
+  .stat-card:hover { border-color: var(--border2); }
+
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+  }
+
+  .stat-card.green::before { background: var(--green); }
+  .stat-card.warn::before  { background: var(--warn); }
+  .stat-card.danger::before{ background: var(--danger); }
+  .stat-card.info::before  { background: var(--info); }
+  .stat-card.purple::before{ background: var(--purple); }
+
+  .stat-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--muted);
+    font-family: var(--font-mono);
+    margin-bottom: 10px;
+  }
+
+  .stat-value {
+    font-family: var(--font-display);
+    font-size: 30px;
+    font-weight: 700;
+    letter-spacing: -1px;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .stat-sub { font-size: 12px; color: var(--muted); }
+
+  .stat-icon {
+    position: absolute;
+    top: 16px; right: 16px;
+    font-size: 22px;
+    opacity: 0.2;
+  }
+
+  /* CARDS */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+
+  .card-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .card-title {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 14px;
+  }
+
+  .section-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+  /* SECTION HEADER */
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+
+  .section-title {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 16px;
+    letter-spacing: -0.3px;
+  }
+
+  /* GRIDS */
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+
+  .grid-3 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+
+  /* PILLS */
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 9px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-family: var(--font-mono);
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  .pill.green  { background: rgba(16,185,129,0.15); color: #34d399; }
+  .pill.warn   { background: rgba(245,158,11,0.15);  color: #fbbf24; }
+  .pill.danger { background: rgba(239,68,68,0.15);   color: #f87171; }
+  .pill.info   { background: rgba(59,130,246,0.15);  color: #60a5fa; }
+  .pill.muted  { background: rgba(122,139,163,0.15); color: var(--muted); }
+  .pill.purple { background: rgba(139,92,246,0.15);  color: #c4b5fd; }
+
+  /* FILTER TABS */
+  .filter-tabs {
+    display: flex;
+    gap: 4px;
+    background: var(--bg3);
+    border-radius: var(--radius-sm);
+    padding: 3px;
+    border: 1px solid var(--border);
+  }
+
+  .filter-tab {
+    padding: 4px 12px;
+    border-radius: 5px;
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    font-size: 12px;
+    font-family: var(--font-body);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .filter-tab.active { background: var(--card); color: var(--text); }
+
+  /* TABLE */
+  table { width: 100%; border-collapse: collapse; }
+
+  thead th {
+    text-align: left;
+    padding: 10px 20px;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.7px;
+    color: var(--muted);
+    font-family: var(--font-mono);
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+
+  tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background 0.1s;
+  }
+
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: var(--card2); }
+
+  tbody td {
+    padding: 12px 20px;
+    font-size: 13px;
+    vertical-align: middle;
+  }
+
+  .mono { font-family: var(--font-mono); }
+
+  /* CONDITION BAR */
+  .bar-track {
+    flex: 1;
+    height: 4px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 2px;
+    overflow: hidden;
+    min-width: 60px;
+  }
+
+  .bar-fill {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.6s ease;
+  }
+
+  .condition-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* TIMELINE */
+  .timeline-item {
+    display: flex;
+    gap: 12px;
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--border);
+    transition: background 0.1s;
+  }
+
+  .timeline-item:last-child { border-bottom: none; }
+  .timeline-item:hover { background: var(--card2); }
+
+  .timeline-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    margin-top: 4px;
+    flex-shrink: 0;
+  }
+
+  .timeline-text { font-size: 13px; font-weight: 400; line-height: 1.5; }
+  .timeline-time { font-size: 11px; color: var(--muted); font-family: var(--font-mono); margin-top: 2px; }
+
+  /* MINI CHART */
+  .mini-chart {
+    display: flex;
+    align-items: flex-end;
+    gap: 6px;
+    height: 80px;
+  }
+
+  .bar {
+    flex: 1;
+    background: rgba(0,212,170,0.2);
+    border-radius: 4px 4px 0 0;
+    transition: height 0.5s ease;
+    cursor: pointer;
+  }
+
+  .bar:hover { background: rgba(0,212,170,0.35); }
+  .bar.today { background: var(--accent); }
+  .bar.today:hover { background: var(--accent2); }
+
+  /* BUILDING CONDITION TABLE */
+  .building-row {
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--border);
+    gap: 14px;
+    transition: background 0.1s;
+  }
+
+  .building-row:last-child { border-bottom: none; }
+  .building-row:hover { background: var(--card2); }
+
+  .building-icon {
+    width: 34px; height: 34px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    flex-shrink: 0;
+  }
+
+  .building-name { font-size: 13px; font-weight: 500; flex: 1; }
+  .building-meta { font-size: 11px; color: var(--muted); font-family: var(--font-mono); }
+
+  /* SCROLLABLE */
+  .scrollable { max-height: 360px; overflow-y: auto; }
+  .scrollable::-webkit-scrollbar { width: 4px; }
+  .scrollable::-webkit-scrollbar-track { background: transparent; }
+  .scrollable::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+  /* TASK ITEMS */
+  .task-item {
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    transition: background 0.1s;
+  }
+
+  .task-item:last-child { border-bottom: none; }
+  .task-item:hover { background: var(--card2); }
+
+  .task-check {
+    width: 18px; height: 18px;
+    border-radius: 5px;
+    border: 1.5px solid var(--border2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 10px;
+    transition: all 0.15s;
+  }
+
+  .task-item.done .task-check {
+    background: var(--green);
+    border-color: var(--green);
+    color: white;
+  }
+
+  .task-text { flex: 1; font-size: 13px; }
+  .task-item.done .task-text { color: var(--muted); text-decoration: line-through; }
+
+  /* ICON BTNS */
+  .icon-btn {
+    width: 28px; height: 28px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.15s;
+    line-height: 1;
+  }
+
+  .icon-btn:hover { background: var(--card2); color: var(--text); border-color: var(--border2); }
+
+  /* TOAST */
+  #toast {
+    position: fixed;
+    bottom: 28px; right: 28px;
+    background: var(--card2);
+    border: 1px solid var(--border2);
+    border-radius: 10px;
+    padding: 12px 18px;
+    font-size: 13px;
+    color: var(--text);
+    transform: translateY(80px);
+    opacity: 0;
+    transition: all 0.3s;
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  /* USAGE COUNT TOGGLE */
+  .period-tabs {
+    display: flex;
+    gap: 4px;
+    background: var(--bg3);
+    border-radius: var(--radius-sm);
+    padding: 3px;
+    border: 1px solid var(--border);
+  }
+
+  .period-tab {
+    padding: 4px 12px;
+    border-radius: 5px;
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    font-size: 12px;
+    font-family: var(--font-mono);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .period-tab.active { background: var(--card); color: var(--accent); }
+
+  /* USAGE COUNT CARD */
+  .usage-count-card {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  .usage-num {
+    font-family: var(--font-display);
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -1px;
+    color: var(--accent);
+  }
+
+  .usage-label { font-size: 12px; color: var(--muted); }
+
+  /* LAST CLEANED CELL */
+  .last-clean-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .last-clean-time { font-size: 13px; font-family: var(--font-mono); }
+  .last-clean-location { font-size: 11px; color: var(--muted); }
+
+  /* STAR RATING */
+  .star-rating { color: var(--warn); font-size: 13px; letter-spacing: 1px; }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="logo">
+    <div class="logo-mark">
+      <div class="logo-icon">🧹</div>
+      <h1>VConnect</h1>
+    </div>
+    <p>Staff Panel</p>
+  </div>
+
+  <nav class="nav">
+    <div class="nav-label">Overview</div>
+    <div class="nav-item active" onclick="switchTab('dashboard', this)">
+      <span class="icon">⬛</span> My Dashboard
+    </div>
+
+    <div class="nav-label">Work</div>
+    <div class="nav-item" onclick="switchTab('tasks', this)">
+      <span class="icon">📋</span> My Tasks
+      <span class="badge warn" id="task-badge">3</span>
+    </div>
+    <div class="nav-item" onclick="switchTab('buildings', this)">
+      <span class="icon">🏢</span> Buildings
+    </div>
+    <div class="nav-item" onclick="switchTab('history', this)">
+      <span class="icon">📅</span> Clean History
+    </div>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="staff-card">
+      <div class="avatar">PM</div>
+      <div class="staff-info-footer">
+        <p>Priya Mehta</p>
+        <span>Senior Cleaner</span>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN AREA -->
+<div class="main">
+  <div class="topbar">
+    <div class="page-title" id="page-title">My Dashboard</div>
+    <div class="topbar-right">
+      <div class="live-badge">
+        <div class="pulse"></div>
+        LIVE · 14:32
+      </div>
+      <button class="btn primary" onclick="markCleaned()">✓ Log Clean</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- ===== DASHBOARD TAB ===== -->
+    <div class="tab-view active" id="tab-dashboard">
+
+      <!-- STAT CARDS -->
+      <div class="stats-row">
+        <div class="stat-card green">
+          <div class="stat-label">Cleaned Today</div>
+          <div class="stat-value" id="stat-today">6</div>
+          <div class="stat-sub">↑ 2 from yesterday</div>
+          <div class="stat-icon">🧼</div>
+        </div>
+        <div class="stat-card info">
+          <div class="stat-label">This Week</div>
+          <div class="stat-value">28</div>
+          <div class="stat-sub">Mon – today</div>
+          <div class="stat-icon">📆</div>
+        </div>
+        <div class="stat-card purple">
+          <div class="stat-label">This Month</div>
+          <div class="stat-value">112</div>
+          <div class="stat-sub">April 2025</div>
+          <div class="stat-icon">🗓</div>
+        </div>
+        <div class="stat-card warn">
+          <div class="stat-label">Avg Condition</div>
+          <div class="stat-value">94<span style="font-size:16px">%</span></div>
+          <div class="stat-sub">↑ 3% from last shift</div>
+          <div class="stat-icon">⭐</div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+
+        <!-- LAST CLEANED -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Last Cleaned</div>
+              <div class="section-sub">Most recent washroom logs</div>
+            </div>
+            <span class="pill green">Today</span>
+          </div>
+          <div class="scrollable">
+            <div class="timeline-item">
+              <div class="timeline-dot" style="background:var(--green)"></div>
+              <div style="flex:1">
+                <div class="timeline-text"><strong>Gateway A — FL1 WR01</strong></div>
+                <div class="timeline-time">14:28 · Condition: 96% · 11 min</div>
+              </div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-dot" style="background:var(--green)"></div>
+              <div style="flex:1">
+                <div class="timeline-text"><strong>NB — FL3 WR05</strong></div>
+                <div class="timeline-time">13:55 · Condition: 92% · 9 min</div>
+              </div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-dot" style="background:var(--green)"></div>
+              <div style="flex:1">
+                <div class="timeline-text"><strong>Kalpana Chawla — FL7 WR03</strong></div>
+                <div class="timeline-time">13:20 · Condition: 94% · 13 min</div>
+              </div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-dot" style="background:var(--warn)"></div>
+              <div style="flex:1">
+                <div class="timeline-text"><strong>Ratan Tata — FL2 WR06</strong></div>
+                <div class="timeline-time">12:45 · Condition: 81% · 10 min</div>
+              </div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-dot" style="background:var(--green)"></div>
+              <div style="flex:1">
+                <div class="timeline-text"><strong>Homi Bhabha — FL4 WR02</strong></div>
+                <div class="timeline-time">11:50 · Condition: 95% · 8 min</div>
+              </div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-dot" style="background:var(--green)"></div>
+              <div style="flex:1">
+                <div class="timeline-text"><strong>Gateway B — FL2 WR01</strong></div>
+                <div class="timeline-time">10:30 · Condition: 97% · 12 min</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CLEANINGS THIS WEEK CHART -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Cleanings This Week</div>
+              <div class="section-sub">My daily totals</div>
+            </div>
+            <span class="pill info">Tue 07 Apr</span>
+          </div>
+          <div style="padding:16px 20px">
+            <div class="mini-chart">
+              <div class="bar" style="height:60%" title="Mon: 5"></div>
+              <div class="bar today" style="height:72%" title="Tue: 6 (today)"></div>
+              <div class="bar" style="height:0%" title="Wed: –"></div>
+              <div class="bar" style="height:0%" title="Thu: –"></div>
+              <div class="bar" style="height:0%" title="Fri: –"></div>
+              <div class="bar" style="height:0%" title="Sat: –"></div>
+              <div class="bar" style="height:0%" title="Sun: –"></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;margin-top:6px">
+              <span style="font-size:11px;color:var(--muted);font-family:var(--font-mono)">Mon</span>
+              <span style="font-size:11px;color:var(--accent);font-family:var(--font-mono);font-weight:500">Tue</span>
+              <span style="font-size:11px;color:var(--muted);font-family:var(--font-mono)">Wed</span>
+              <span style="font-size:11px;color:var(--muted);font-family:var(--font-mono)">Thu</span>
+              <span style="font-size:11px;color:var(--muted);font-family:var(--font-mono)">Fri</span>
+              <span style="font-size:11px;color:var(--muted);font-family:var(--font-mono)">Sat</span>
+              <span style="font-size:11px;color:var(--muted);font-family:var(--font-mono)">Sun</span>
+            </div>
+          </div>
+
+          <!-- My Today's Tasks (mini) -->
+          <div class="card-header" style="border-top:1px solid var(--border)">
+            <div class="card-title">Today's Pending Tasks</div>
+            <span class="pill warn">3 left</span>
+          </div>
+          <div>
+            <div class="task-item done" onclick="toggleTask(this)">
+              <div class="task-check">✓</div>
+              <div class="task-text">Gateway A — FL1 Morning Clean</div>
+              <span class="pill muted">09:00</span>
+            </div>
+            <div class="task-item done" onclick="toggleTask(this)">
+              <div class="task-check">✓</div>
+              <div class="task-text">NB — FL3 WR05 Routine Clean</div>
+              <span class="pill muted">11:00</span>
+            </div>
+            <div class="task-item done" onclick="toggleTask(this)">
+              <div class="task-check">✓</div>
+              <div class="task-text">Kalpana Chawla — FL7 Supply Restock</div>
+              <span class="pill muted">13:00</span>
+            </div>
+            <div class="task-item" onclick="toggleTask(this)">
+              <div class="task-check"></div>
+              <div class="task-text">Gateway A — FL1 Afternoon Clean</div>
+              <span class="pill warn">15:00</span>
+            </div>
+            <div class="task-item" onclick="toggleTask(this)">
+              <div class="task-check"></div>
+              <div class="task-text">NB — FL2 WR03 Deep Clean</div>
+              <span class="pill info">16:00</span>
+            </div>
+            <div class="task-item" onclick="toggleTask(this)">
+              <div class="task-check"></div>
+              <div class="task-text">Homi Bhabha — FL5 End-of-day</div>
+              <span class="pill muted">17:30</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- BUILDINGS CONDITION SUMMARY -->
+      <div class="card" style="margin-bottom:20px">
+        <div class="card-header">
+          <div>
+            <div class="card-title">My Assigned Buildings — Condition</div>
+            <div class="section-sub">Current washroom ratings</div>
+          </div>
+        </div>
+        <div id="building-summary">
+          <!-- Rendered by JS -->
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ===== TASKS TAB ===== -->
+    <div class="tab-view" id="tab-tasks">
+      <div class="section-header">
+        <div>
+          <div class="section-title">My Tasks</div>
+          <div class="section-sub">Assigned washrooms for today</div>
+        </div>
+        <div class="filter-tabs">
+          <button class="filter-tab active" onclick="filterMyTasks('all', this)">All</button>
+          <button class="filter-tab" onclick="filterMyTasks('pending', this)">Pending</button>
+          <button class="filter-tab" onclick="filterMyTasks('done', this)">Done</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div id="my-tasks-list">
+          <!-- Rendered by JS -->
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== BUILDINGS TAB ===== -->
+    <div class="tab-view" id="tab-buildings">
+      <div class="section-header">
+        <div>
+          <div class="section-title">Buildings & Washrooms</div>
+          <div class="section-sub">Condition ratings and last cleaned times</div>
+        </div>
+      </div>
+
+      <!-- ACADEMIC / GATEWAY -->
+      <div class="card" style="margin-bottom:20px">
+        <div class="card-header">
+          <div class="card-title">Gateway Buildings</div>
+          <span class="pill info">2 Buildings</span>
+        </div>
+        <div id="buildings-gateway"></div>
+      </div>
+
+      <!-- NORTH BLOCK -->
+      <div class="card" style="margin-bottom:20px">
+        <div class="card-header">
+          <div class="card-title">North Block (NB)</div>
+          <span class="pill info">4 Floors</span>
+        </div>
+        <div id="buildings-nb"></div>
+      </div>
+
+      <!-- TOWER HOSTELS -->
+      <div class="card" style="margin-bottom:20px">
+        <div class="card-header">
+          <div class="card-title">Tower Hostels</div>
+          <span class="pill purple">8 washrooms / floor</span>
+        </div>
+        <div id="buildings-tower"></div>
+      </div>
+
+      <!-- APARTMENT HOSTELS -->
+      <div class="card" style="margin-bottom:20px">
+        <div class="card-header">
+          <div class="card-title">Apartment Hostels</div>
+          <span class="pill muted">5–6 Floors</span>
+        </div>
+        <div id="buildings-apt"></div>
+      </div>
+    </div>
+
+    <!-- ===== HISTORY TAB ===== -->
+    <div class="tab-view" id="tab-history">
+      <div class="section-header">
+        <div>
+          <div class="section-title">Cleaning History</div>
+          <div class="section-sub">My complete log</div>
+        </div>
+        <div class="period-tabs">
+          <button class="period-tab active" onclick="switchPeriod('day', this)">Day</button>
+          <button class="period-tab" onclick="switchPeriod('week', this)">Week</button>
+          <button class="period-tab" onclick="switchPeriod('month', this)">Month</button>
+        </div>
+      </div>
+
+      <!-- Summary counts -->
+      <div class="stats-row" style="grid-template-columns:repeat(3,1fr)">
+        <div class="stat-card green">
+          <div class="stat-label" id="hist-period-label">Cleanings Today</div>
+          <div class="stat-value" id="hist-count">6</div>
+          <div class="stat-sub" id="hist-sub">Tue 07 Apr</div>
+          <div class="stat-icon">🧼</div>
+        </div>
+        <div class="stat-card info">
+          <div class="stat-label">Avg Condition</div>
+          <div class="stat-value" id="hist-condition">94<span style="font-size:16px">%</span></div>
+          <div class="stat-sub">Avg across logged cleanings</div>
+          <div class="stat-icon">📊</div>
+        </div>
+        <div class="stat-card warn">
+          <div class="stat-label">Locations Covered</div>
+          <div class="stat-value" id="hist-locations">5</div>
+          <div class="stat-sub">Unique buildings</div>
+          <div class="stat-icon">🏢</div>
+        </div>
+      </div>
+
+      <!-- Log table -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Log Entries</div>
+          <span class="pill muted mono" id="hist-entry-count">6 entries</span>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Location</th>
+                <th>Time</th>
+                <th>Duration</th>
+                <th>Condition After</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="history-tbody">
+              <!-- Rendered by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end .content -->
+</div><!-- end .main -->
+
+<!-- TOAST -->
+<div id="toast">
+  <span style="color:var(--accent)">✓</span>
+  <span id="toast-msg"></span>
+</div>
+
+<script>
+// ===== DATA =====
+
+const myName = 'Priya Mehta';
+
+// Buildings config
+const buildings = [
+  { id:'gwa',   name:'Gateway Building A', short:'Gateway A', type:'gateway', floors:1,  washPerFloor:2,  icon:'🏛', color:'#3b82f6' },
+  { id:'gwb',   name:'Gateway Building B', short:'Gateway B', type:'gateway', floors:3,  washPerFloor:2,  icon:'🏛', color:'#06b6d4' },
+  { id:'nb',    name:'North Block',        short:'NB',        type:'nb',      floors:4,  washPerFloor:3,  icon:'🏢', color:'#8b5cf6' },
+  { id:'kc',    name:'Kalpana Chawla',     short:'KC Hostel', type:'tower',   floors:10, washPerFloor:8,  icon:'🏬', color:'#10b981' },
+  { id:'rt',    name:'Ratan Tata',         short:'RT Hostel', type:'tower',   floors:14, washPerFloor:8,  icon:'🏬', color:'#f59e0b' },
+  { id:'bs',    name:'Bhagat Singh',       short:'BS Hostel', type:'tower',   floors:14, washPerFloor:8,  icon:'🏬', color:'#ef4444' },
+  { id:'hb',    name:'Homi Bhabha',        short:'HB Apt',    type:'apt',     floors:5,  washPerFloor:3,  icon:'🏠', color:'#a855f7' },
+  { id:'vs',    name:'Vikram Sarabhai',    short:'VS Apt',    type:'apt',     floors:6,  washPerFloor:3,  icon:'🏠', color:'#ec4899' },
+  { id:'gr',    name:'Gargi',              short:'Gargi Apt', type:'apt',     floors:5,  washPerFloor:3,  icon:'🏠', color:'#14b8a6' },
+  { id:'ak',    name:'Abdul Kalam',        short:'AK Apt',    type:'apt',     floors:6,  washPerFloor:3,  icon:'🏠', color:'#f97316' },
+];
+
+// Condition ratings per building (simulated)
+const buildingConditions = {
+  gwa: 96, gwb: 88, nb: 84, kc: 91, rt: 78, bs: 82, hb: 95, vs: 87, gr: 79, ak: 93
+};
+
+// Last cleaned per building
+const lastCleaned = {
+  gwa: '14:28', gwb: '10:30', nb: '13:55', kc: '13:20', rt: '12:45',
+  bs: '11:10', hb: '11:50', vs: '09:40', gr: '10:15', ak: '08:55'
+};
+
+// History data
+const historyData = {
+  day: [
+    { loc:'Gateway A — FL1 WR01',     time:'14:28', duration:'11 min', condition:96, status:'done' },
+    { loc:'NB — FL3 WR05',            time:'13:55', duration:'9 min',  condition:92, status:'done' },
+    { loc:'Kalpana Chawla — FL7 WR03',time:'13:20', duration:'13 min', condition:94, status:'done' },
+    { loc:'Ratan Tata — FL2 WR06',    time:'12:45', duration:'10 min', condition:81, status:'done' },
+    { loc:'Homi Bhabha — FL4 WR02',   time:'11:50', duration:'8 min',  condition:95, status:'done' },
+    { loc:'Gateway B — FL2 WR01',     time:'10:30', duration:'12 min', condition:97, status:'done' },
+  ],
+  week: [
+    { loc:'Gateway A — FL1 WR01',     time:'Mon 09:10', duration:'10 min', condition:94, status:'done' },
+    { loc:'NB — FL2 WR03',            time:'Mon 11:00', duration:'12 min', condition:88, status:'done' },
+    { loc:'Bhagat Singh — FL5 WR02',  time:'Mon 13:40', duration:'9 min',  condition:85, status:'done' },
+    { loc:'Kalpana Chawla — FL9 WR07',time:'Mon 15:00', duration:'11 min', condition:91, status:'done' },
+    { loc:'Vikram Sarabhai — FL3 WR01',time:'Mon 16:30',duration:'8 min',  condition:93, status:'done' },
+    { loc:'Gateway A — FL1 WR01',     time:'Tue 14:28', duration:'11 min', condition:96, status:'done' },
+    { loc:'NB — FL3 WR05',            time:'Tue 13:55', duration:'9 min',  condition:92, status:'done' },
+    { loc:'Kalpana Chawla — FL7 WR03',time:'Tue 13:20', duration:'13 min', condition:94, status:'done' },
+    { loc:'Ratan Tata — FL2 WR06',    time:'Tue 12:45', duration:'10 min', condition:81, status:'done' },
+    { loc:'Homi Bhabha — FL4 WR02',   time:'Tue 11:50', duration:'8 min',  condition:95, status:'done' },
+    { loc:'Gateway B — FL2 WR01',     time:'Tue 10:30', duration:'12 min', condition:97, status:'done' },
+  ],
+  month: [
+    { loc:'Gateway A — FL1 WR01',     time:'Apr 01', duration:'10 min', condition:93, status:'done' },
+    { loc:'NB — FL1 WR02',            time:'Apr 01', duration:'11 min', condition:87, status:'done' },
+    { loc:'Ratan Tata — FL3 WR04',    time:'Apr 02', duration:'9 min',  condition:82, status:'done' },
+    { loc:'Abdul Kalam — FL2 WR01',   time:'Apr 02', duration:'12 min', condition:95, status:'done' },
+    { loc:'Bhagat Singh — FL8 WR02',  time:'Apr 03', duration:'10 min', condition:88, status:'done' },
+    { loc:'Gargi — FL4 WR03',         time:'Apr 03', duration:'8 min',  condition:91, status:'done' },
+    { loc:'Gateway B — FL1 WR02',     time:'Apr 04', duration:'13 min', condition:96, status:'done' },
+    { loc:'NB — FL4 WR01',            time:'Apr 04', duration:'9 min',  condition:84, status:'done' },
+    { loc:'Kalpana Chawla — FL10 WR05',time:'Apr 05',duration:'11 min', condition:90, status:'done' },
+    { loc:'Homi Bhabha — FL5 WR02',   time:'Apr 05', duration:'10 min', condition:94, status:'done' },
+    { loc:'Vikram Sarabhai — FL2 WR03',time:'Apr 06',duration:'8 min',  condition:89, status:'done' },
+    { loc:'NB — FL2 WR03',            time:'Apr 06', duration:'12 min', condition:86, status:'done' },
+    { loc:'Gateway A — FL1 WR01',     time:'Tue 14:28', duration:'11 min', condition:96, status:'done' },
+    { loc:'NB — FL3 WR05',            time:'Tue 13:55', duration:'9 min',  condition:92, status:'done' },
+    { loc:'Kalpana Chawla — FL7 WR03',time:'Tue 13:20', duration:'13 min', condition:94, status:'done' },
+    { loc:'Ratan Tata — FL2 WR06',    time:'Tue 12:45', duration:'10 min', condition:81, status:'done' },
+    { loc:'Homi Bhabha — FL4 WR02',   time:'Tue 11:50', duration:'8 min',  condition:95, status:'done' },
+    { loc:'Gateway B — FL2 WR01',     time:'Tue 10:30', duration:'12 min', condition:97, status:'done' },
+  ]
+};
+
+const histMeta = {
+  day:   { label:'Cleanings Today',    sub:'Tue 07 Apr',       entries:'6 entries',  count:6,  condition:94, locations:5 },
+  week:  { label:'Cleanings This Week',sub:'Mon 06 – Tue 07',  entries:'11 entries', count:11, condition:91, locations:7 },
+  month: { label:'Cleanings in April', sub:'Apr 01 – Tue 07',  entries:'18 entries', count:18, condition:91, locations:9 },
+};
+
+const myTasks = [
+  { loc:'Gateway A — FL1',             type:'Morning Clean',    time:'09:00', status:'done',    priority:'normal' },
+  { loc:'NB — FL3 WR05',               type:'Routine Clean',    time:'11:00', status:'done',    priority:'normal' },
+  { loc:'Kalpana Chawla — FL7 WR03',   type:'Supply Restock',   time:'13:00', status:'done',    priority:'normal' },
+  { loc:'Gateway A — FL1',             type:'Afternoon Clean',  time:'15:00', status:'pending', priority:'normal' },
+  { loc:'NB — FL2 WR03',               type:'Deep Clean',       time:'16:00', status:'pending', priority:'high'   },
+  { loc:'Homi Bhabha — FL5',           type:'End-of-day Clean', time:'17:30', status:'pending', priority:'normal' },
+];
+
+// ===== RENDER FUNCTIONS =====
+
+function ratingStars(pct) {
+  const stars = Math.round(pct / 20);
+  return '★'.repeat(stars) + '☆'.repeat(5 - stars);
+}
+
+function condColor(c) {
+  return c >= 90 ? 'var(--green)' : c >= 80 ? 'var(--warn)' : 'var(--danger)';
+}
+
+function renderBuildingSummary() {
+  const cont = document.getElementById('building-summary');
+  const assigned = ['gwa','nb','kc','rt','hb']; // Priya's assigned buildings
+  cont.innerHTML = assigned.map(id => {
+    const b = buildings.find(x => x.id === id);
+    const cond = buildingConditions[id];
+    const lc = lastCleaned[id];
+    const cc = condColor(cond);
+    return `
+      <div class="building-row">
+        <div class="building-icon" style="background:${b.color}22;color:${b.color}">${b.icon}</div>
+        <div style="flex:1">
+          <div class="building-name">${b.name}</div>
+          <div class="building-meta">${b.floors} floor${b.floors>1?'s':''} · Last cleaned ${lc}</div>
+        </div>
+        <div class="condition-bar" style="width:160px">
+          <div class="bar-track"><div class="bar-fill" style="width:${cond}%;background:${cc}"></div></div>
+          <span class="mono" style="font-size:12px;color:${cc};min-width:36px">${cond}%</span>
+        </div>
+        <span class="star-rating" style="color:var(--warn)">${ratingStars(cond)}</span>
+      </div>`;
+  }).join('');
+}
+
+function renderBuildingsTab() {
+  const gatewayBuildings = buildings.filter(b => b.type === 'gateway');
+  const nbBuildings      = buildings.filter(b => b.type === 'nb');
+  const towerBuildings   = buildings.filter(b => b.type === 'tower');
+  const aptBuildings     = buildings.filter(b => b.type === 'apt');
+
+  const renderGroup = (list) => list.map(b => {
+    const cond = buildingConditions[b.id];
+    const lc   = lastCleaned[b.id];
+    const cc   = condColor(cond);
+    const totalWR = b.floors * b.washPerFloor;
+    return `
+      <div class="building-row">
+        <div class="building-icon" style="background:${b.color}22;color:${b.color}">${b.icon}</div>
+        <div style="flex:1">
+          <div class="building-name">${b.name}</div>
+          <div class="building-meta">${b.floors} floor${b.floors>1?'s':''} · ${totalWR} washrooms total · Last: ${lc}</div>
+        </div>
+        <div class="condition-bar" style="width:160px">
+          <div class="bar-track"><div class="bar-fill" style="width:${cond}%;background:${cc}"></div></div>
+          <span class="mono" style="font-size:12px;color:${cc};min-width:36px">${cond}%</span>
+        </div>
+        <span class="star-rating">${ratingStars(cond)}</span>
+      </div>`;
+  }).join('');
+
+  document.getElementById('buildings-gateway').innerHTML = renderGroup(gatewayBuildings);
+  document.getElementById('buildings-nb').innerHTML      = renderGroup(nbBuildings);
+  document.getElementById('buildings-tower').innerHTML   = renderGroup(towerBuildings);
+  document.getElementById('buildings-apt').innerHTML     = renderGroup(aptBuildings);
+}
+
+function renderHistory(period) {
+  const data = historyData[period];
+  const tbody = document.getElementById('history-tbody');
+  tbody.innerHTML = data.map((h, i) => {
+    const cc = condColor(h.condition);
+    return `
+      <tr>
+        <td><span class="mono" style="color:var(--muted)">${i+1}</span></td>
+        <td><span style="font-weight:500">${h.loc}</span></td>
+        <td><span class="mono" style="color:var(--muted)">${h.time}</span></td>
+        <td><span class="mono">${h.duration}</span></td>
+        <td>
+          <div class="condition-bar">
+            <div class="bar-track"><div class="bar-fill" style="width:${h.condition}%;background:${cc}"></div></div>
+            <span class="mono" style="font-size:12px;color:${cc};min-width:36px">${h.condition}%</span>
+          </div>
+        </td>
+        <td><span class="pill green">Done</span></td>
+      </tr>`;
+  }).join('');
+}
+
+function renderMyTasks(filter = 'all') {
+  const cont = document.getElementById('my-tasks-list');
+  const filtered = filter === 'all' ? myTasks : myTasks.filter(t => t.status === filter);
+  cont.innerHTML = filtered.map(t => {
+    const done = t.status === 'done';
+    const pClass = t.priority === 'urgent' ? 'danger' : t.priority === 'high' ? 'warn' : 'muted';
+    return `
+      <div class="task-item ${done ? 'done' : ''}" onclick="toggleTask(this)">
+        <div class="task-check">${done ? '✓' : ''}</div>
+        <div style="flex:1">
+          <div class="task-text" style="text-decoration:${done?'line-through':'none'};color:${done?'var(--muted)':'var(--text)'}">
+            ${t.loc} — ${t.type}
+          </div>
+          <div style="font-size:11px;color:var(--muted);font-family:var(--font-mono);margin-top:2px">${t.time}</div>
+        </div>
+        <span class="pill ${pClass}">${t.priority === 'urgent' ? 'URGENT' : t.priority === 'high' ? 'HIGH' : t.time}</span>
+      </div>`;
+  }).join('');
+}
+
+// ===== INTERACTIONS =====
+
+function switchTab(tab, el) {
+  document.querySelectorAll('.tab-view').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-'+tab).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  if (el) el.classList.add('active');
+  const titles = {
+    dashboard: 'My Dashboard',
+    tasks:     'My Tasks',
+    buildings: 'Buildings',
+    history:   'Cleaning History'
+  };
+  document.getElementById('page-title').textContent = titles[tab] || tab;
+}
+
+function filterMyTasks(f, el) {
+  document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+  if (el) el.classList.add('active');
+  renderMyTasks(f);
+}
+
+function switchPeriod(period, el) {
+  document.querySelectorAll('.period-tab').forEach(t => t.classList.remove('active'));
+  if (el) el.classList.add('active');
+  const m = histMeta[period];
+  document.getElementById('hist-period-label').textContent = m.label;
+  document.getElementById('hist-count').textContent = m.count;
+  document.getElementById('hist-sub').textContent = m.sub;
+  document.getElementById('hist-condition').innerHTML = m.condition + '<span style="font-size:16px">%</span>';
+  document.getElementById('hist-locations').textContent = m.locations;
+  document.getElementById('hist-entry-count').textContent = m.entries;
+  renderHistory(period);
+}
+
+function toggleTask(el) {
+  el.classList.toggle('done');
+  const check = el.querySelector('.task-check');
+  if (el.classList.contains('done')) { check.textContent = '✓'; } else { check.textContent = ''; }
+  // Update pending count
+  const pending = document.querySelectorAll('.task-item:not(.done)').length;
+  const badge = document.getElementById('task-badge');
+  if (badge) badge.textContent = pending;
+}
+
+function markCleaned() {
+  showToast('Clean logged successfully!');
+  const val = parseInt(document.getElementById('stat-today').textContent) + 1;
+  document.getElementById('stat-today').textContent = val;
+}
+
+function showToast(msg) {
+  const toast = document.getElementById('toast');
+  document.getElementById('toast-msg').textContent = msg;
+  toast.style.transform = 'translateY(0)';
+  toast.style.opacity = '1';
+  setTimeout(() => { toast.style.transform = 'translateY(80px)'; toast.style.opacity = '0'; }, 3000);
+}
+
+function animateBars() {
+  const fills = document.querySelectorAll('.bar-fill');
+  fills.forEach(f => {
+    const target = f.style.width;
+    f.style.width = '0';
+    requestAnimationFrame(() => { setTimeout(() => { f.style.width = target; }, 50); });
+  });
+}
+
+// ===== INIT =====
+renderBuildingSummary();
+renderBuildingsTab();
+renderMyTasks();
+renderHistory('day');
+setTimeout(animateBars, 100);
+
+// Live clock
+setInterval(() => {
+  const now = new Date();
+  const t = now.toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit' });
+  const el = document.querySelector('.live-badge');
+  if (el) el.innerHTML = `<div class="pulse"></div>LIVE · ${t}`;
+}, 5000);
+</script>
+</body>
+</html>

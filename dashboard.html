@@ -1,44 +1,2293 @@
+
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Dashboard - VConnect</title>
-    <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CleanOps — User Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0b0f14;
+    --bg2: #111720;
+    --bg3: #161d28;
+    --card: #1a2233;
+    --card2: #1f2a3d;
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(255,255,255,0.12);
+    --text: #e8edf5;
+    --muted: #7a8ba3;
+    --muted2: #4a5a72;
+    --accent: #00d4aa;
+    --accent2: #00a882;
+    --warn: #f59e0b;
+    --danger: #ef4444;
+    --info: #3b82f6;
+    --green: #10b981;
+    --purple: #8b5cf6;
+    --font-display: 'Syne', sans-serif;
+    --font-body: 'DM Sans', sans-serif;
+    --font-mono: 'DM Mono', monospace;
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 14px;
+    min-height: 100vh;
+    display: flex;
+  }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: 228px;
+    min-height: 100vh;
+    background: var(--bg2);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    flex-shrink: 0;
+  }
+
+  .logo {
+    padding: 28px 20px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .logo-mark {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 4px;
+  }
+
+  .logo-icon {
+    width: 32px; height: 32px;
+    background: var(--accent);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+  }
+
+  .logo h1 {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 18px;
+    letter-spacing: -0.5px;
+    color: var(--text);
+  }
+
+  .logo p {
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    font-family: var(--font-mono);
+  }
+
+  .nav { padding: 16px 12px; flex: 1; }
+
+  .nav-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--muted2);
+    font-family: var(--font-mono);
+    padding: 8px 8px 4px;
+    margin-top: 8px;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 10px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    color: var(--muted);
+    font-size: 13.5px;
+    font-weight: 400;
+    transition: all 0.15s;
+    text-decoration: none;
+    margin-bottom: 2px;
+    position: relative;
+  }
+
+  .nav-item:hover { background: var(--card); color: var(--text); }
+  .nav-item.active { background: rgba(0,212,170,0.1); color: var(--accent); }
+  .nav-item .icon { font-size: 15px; width: 18px; text-align: center; }
+
+  .badge {
+    margin-left: auto;
+    background: var(--danger);
+    color: white;
+    font-size: 10px;
+    font-family: var(--font-mono);
+    padding: 1px 6px;
+    border-radius: 20px;
+    font-weight: 500;
+  }
+  .badge.warn { background: var(--warn); color: #0b0f14; }
+  .badge.green { background: var(--green); color: #0b0f14; }
+
+  .sidebar-footer {
+    padding: 16px;
+    border-top: 1px solid var(--border);
+  }
+
+  .user-card {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    background: var(--card);
+    border-radius: var(--radius-sm);
+  }
+
+  .avatar {
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--info), var(--purple));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 13px;
+    color: white;
+    flex-shrink: 0;
+  }
+
+  .user-info p { font-size: 13px; font-weight: 500; color: var(--text); }
+  .user-info span { font-size: 11px; color: var(--muted); }
+
+  /* MAIN */
+  .main { flex: 1; display: flex; flex-direction: column; min-width: 0; overflow: hidden; }
+
+  .topbar {
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+
+  .page-title {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 20px;
+    letter-spacing: -0.5px;
+  }
+
+  .topbar-right { display: flex; align-items: center; gap: 12px; }
+
+  .live-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-family: var(--font-mono);
+    color: var(--accent);
+    background: rgba(0,212,170,0.1);
+    padding: 5px 12px;
+    border-radius: 20px;
+    border: 1px solid rgba(0,212,170,0.2);
+  }
+
+  .pulse {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--accent);
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.85); }
+  }
+
+  .btn {
+    padding: 7px 16px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border2);
+    background: var(--card);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .btn:hover { background: var(--card2); border-color: var(--border2); }
+
+  .btn.primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #0b0f14;
+    font-weight: 500;
+  }
+
+  .btn.primary:hover { background: var(--accent2); }
+
+  .btn.danger-btn {
+    background: rgba(239,68,68,0.15);
+    border-color: rgba(239,68,68,0.3);
+    color: #f87171;
+  }
+
+  /* CONTENT */
+  .content { flex: 1; overflow-y: auto; padding: 28px; }
+
+  /* TABS */
+  .tab-view { display: none; }
+  .tab-view.active { display: block; }
+
+  /* STAT CARDS */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+
+  .stat-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+
+  .stat-card:hover { border-color: var(--border2); }
+
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+  }
+
+  .stat-card.green::before { background: var(--green); }
+  .stat-card.warn::before { background: var(--warn); }
+  .stat-card.danger::before { background: var(--danger); }
+  .stat-card.info::before { background: var(--info); }
+  .stat-card.purple::before { background: var(--purple); }
+  .stat-card.accent::before { background: var(--accent); }
+
+  .stat-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--muted);
+    font-family: var(--font-mono);
+    margin-bottom: 10px;
+  }
+
+  .stat-value {
+    font-family: var(--font-display);
+    font-size: 30px;
+    font-weight: 700;
+    letter-spacing: -1px;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .stat-sub { font-size: 12px; color: var(--muted); }
+
+  .stat-icon {
+    position: absolute;
+    top: 16px; right: 16px;
+    font-size: 22px;
+    opacity: 0.2;
+  }
+
+  /* SECTION */
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+
+  .section-title {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 16px;
+    letter-spacing: -0.3px;
+  }
+
+  .section-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+
+  .grid-3 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+
+  /* CARDS */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+
+  .card-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .card-title {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 14px;
+  }
+
+  /* TABLE */
+  table { width: 100%; border-collapse: collapse; }
+
+  thead th {
+    text-align: left;
+    padding: 10px 20px;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.7px;
+    color: var(--muted);
+    font-family: var(--font-mono);
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+
+  tbody tr { border-bottom: 1px solid var(--border); transition: background 0.1s; cursor: pointer; }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: var(--card2); }
+
+  tbody td { padding: 12px 20px; font-size: 13px; vertical-align: middle; }
+
+  /* PILLS */
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 9px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-family: var(--font-mono);
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  .pill.green { background: rgba(16,185,129,0.15); color: #34d399; }
+  .pill.warn { background: rgba(245,158,11,0.15); color: #fbbf24; }
+  .pill.danger { background: rgba(239,68,68,0.15); color: #f87171; }
+  .pill.info { background: rgba(59,130,246,0.15); color: #60a5fa; }
+  .pill.muted { background: rgba(122,139,163,0.15); color: var(--muted); }
+  .pill.purple { background: rgba(139,92,246,0.15); color: #a78bfa; }
+  .pill.accent { background: rgba(0,212,170,0.12); color: var(--accent); }
+
+  /* BAR */
+  .bar-track {
+    flex: 1;
+    height: 4px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 2px;
+    overflow: hidden;
+    min-width: 60px;
+  }
+
+  .bar-fill {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.6s ease;
+  }
+
+  .condition-bar { display: flex; align-items: center; gap: 8px; }
+
+  .mono { font-family: var(--font-mono); }
+
+  /* AVATAR */
+  .avatar-sm {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 11px;
+    color: white;
+    flex-shrink: 0;
+  }
+
+  .staff-info { display: flex; align-items: center; gap: 10px; }
+  .staff-name { font-weight: 500; font-size: 13px; }
+  .staff-role { font-size: 11px; color: var(--muted); }
+
+  /* TIMELINE */
+  .timeline-item {
+    display: flex;
+    gap: 12px;
+    padding: 10px 20px;
+    border-bottom: 1px solid var(--border);
+    align-items: flex-start;
+  }
+
+  .timeline-item:last-child { border-bottom: none; }
+
+  .timeline-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    margin-top: 5px;
+    flex-shrink: 0;
+  }
+
+  .timeline-content { flex: 1; }
+  .timeline-text { font-size: 13px; line-height: 1.4; }
+  .timeline-time { font-size: 11px; color: var(--muted); font-family: var(--font-mono); margin-top: 2px; }
+
+  /* MINI CHART */
+  .mini-chart {
+    display: flex;
+    align-items: flex-end;
+    gap: 4px;
+    height: 52px;
+    padding: 0 4px;
+  }
+
+  .bar {
+    flex: 1;
+    border-radius: 3px 3px 0 0;
+    background: rgba(0,212,170,0.25);
+    transition: background 0.15s;
+    min-width: 8px;
+    cursor: pointer;
+  }
+
+  .bar:hover { background: var(--accent); }
+  .bar.today { background: var(--accent); }
+
+  /* FILTER TABS */
+  .filter-tabs {
+    display: flex;
+    gap: 4px;
+    background: var(--bg3);
+    border-radius: var(--radius-sm);
+    padding: 3px;
+  }
+
+  .filter-tab {
+    padding: 5px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-family: var(--font-mono);
+    cursor: pointer;
+    color: var(--muted);
+    transition: all 0.15s;
+    border: none;
+    background: none;
+  }
+
+  .filter-tab.active { background: var(--card2); color: var(--text); }
+
+  /* BUILDING SELECTOR */
+  .building-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 20px;
+  }
+
+  .building-tab {
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-family: var(--font-mono);
+    cursor: pointer;
+    color: var(--muted);
+    border: 1px solid var(--border);
+    background: var(--card);
+    transition: all 0.15s;
+    font-weight: 500;
+  }
+
+  .building-tab:hover { border-color: var(--border2); color: var(--text); }
+  .building-tab.active { border-color: var(--accent); color: var(--accent); background: rgba(0,212,170,0.08); }
+
+  /* FLOOR SECTION */
+  .floor-section {
+    margin-bottom: 20px;
+  }
+
+  .floor-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .floor-header:hover { background: var(--card); }
+
+  .floor-label {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    flex: 1;
+  }
+
+  .washroom-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 12px;
+  }
+
+  /* WASHROOM CARD */
+  .wr-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .wr-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+  }
+
+  .wr-card.clean::before { background: var(--green); }
+  .wr-card.fair::before { background: var(--warn); }
+  .wr-card.dirty::before { background: var(--danger); }
+
+  .wr-card:hover { border-color: var(--border2); transform: translateY(-1px); }
+
+  .wr-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+
+  .wr-id {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 14px;
+    margin-bottom: 2px;
+  }
+
+  .wr-type { font-size: 11px; color: var(--muted); }
+
+  .wr-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .wr-stat {
+    background: var(--bg3);
+    border-radius: 6px;
+    padding: 8px 10px;
+  }
+
+  .wr-stat-label { font-size: 10px; color: var(--muted2); font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 3px; }
+  .wr-stat-value { font-family: var(--font-display); font-weight: 600; font-size: 16px; }
+
+  .wr-last {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 10px;
+    border-top: 1px solid var(--border);
+  }
+
+  .wr-last-info { font-size: 11px; color: var(--muted); font-family: var(--font-mono); }
+  .wr-last-info strong { color: var(--text); font-weight: 500; }
+
+  .rating-stars {
+    display: flex;
+    gap: 2px;
+  }
+
+  .star { font-size: 12px; }
+
+  /* STAFF TABLE */
+  .icon-btn {
+    width: 28px; height: 28px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.15s;
+    line-height: 1;
+  }
+
+  .icon-btn:hover { background: var(--card2); color: var(--text); border-color: var(--border2); }
+
+  /* TASKS */
+  .task-item {
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    transition: background 0.1s;
+  }
+
+  .task-item:last-child { border-bottom: none; }
+  .task-item:hover { background: var(--card2); }
+
+  .task-check {
+    width: 18px; height: 18px;
+    border-radius: 5px;
+    border: 1.5px solid var(--border2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 10px;
+    transition: all 0.15s;
+  }
+
+  .task-item.done .task-check { background: var(--green); border-color: var(--green); color: white; }
+  .task-text { flex: 1; font-size: 13px; }
+  .task-item.done .task-text { color: var(--muted); text-decoration: line-through; }
+
+  /* ISSUE ITEMS */
+  .issue-item {
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    transition: background 0.1s;
+  }
+
+  .issue-item:last-child { border-bottom: none; }
+  .issue-item:hover { background: var(--card2); }
+
+  .issue-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    margin-top: 4px;
+    flex-shrink: 0;
+  }
+
+  .issue-dot.danger { background: var(--danger); box-shadow: 0 0 6px rgba(239,68,68,0.5); }
+  .issue-dot.warn { background: var(--warn); box-shadow: 0 0 6px rgba(245,158,11,0.4); }
+  .issue-dot.info { background: var(--info); }
+  .issue-dot.green { background: var(--green); }
+
+  .issue-title { font-size: 13px; font-weight: 500; margin-bottom: 2px; }
+  .issue-meta { font-size: 11px; color: var(--muted); font-family: var(--font-mono); }
+
+  .issue-actions { margin-left: auto; display: flex; gap: 6px; align-items: center; }
+
+  /* REPORT MODAL */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.65);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(2px);
+  }
+
+  .modal-overlay.open { display: flex; }
+
+  .modal {
+    background: var(--card);
+    border: 1px solid var(--border2);
+    border-radius: 16px;
+    padding: 28px;
+    width: 520px;
+    max-width: 95vw;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+
+  .modal-title { font-family: var(--font-display); font-weight: 700; font-size: 18px; margin-bottom: 6px; }
+  .modal-sub { font-size: 13px; color: var(--muted); margin-bottom: 20px; }
+
+  .form-group { margin-bottom: 16px; }
+
+  .form-label {
+    display: block;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: var(--muted);
+    font-family: var(--font-mono);
+    margin-bottom: 6px;
+  }
+
+  .form-select, .form-input, .form-textarea {
+    width: 100%;
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    border-radius: var(--radius-sm);
+    padding: 9px 12px;
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  .form-select:focus, .form-input:focus, .form-textarea:focus { border-color: var(--accent); }
+  .form-textarea { resize: none; height: 80px; }
+
+  .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+
+  /* RATING INPUT */
+  .rating-input { display: flex; gap: 8px; margin-top: 6px; }
+
+  .rate-btn {
+    width: 36px; height: 36px;
+    border-radius: 8px;
+    border: 1px solid var(--border2);
+    background: var(--bg3);
+    color: var(--muted);
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+  }
+
+  .rate-btn:hover, .rate-btn.selected { border-color: var(--accent); background: rgba(0,212,170,0.1); color: var(--accent); }
+
+  /* SCROLLABLE */
+  .scrollable { max-height: 360px; overflow-y: auto; }
+  .scrollable::-webkit-scrollbar { width: 4px; }
+  .scrollable::-webkit-scrollbar-track { background: transparent; }
+  .scrollable::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+  /* TOAST */
+  .toast {
+    position: fixed;
+    bottom: 28px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--card2);
+    border: 1px solid var(--border2);
+    border-radius: 10px;
+    padding: 12px 20px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+    z-index: 999;
+    opacity: 0;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    white-space: nowrap;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  }
+
+  .table-wrap { overflow-x: auto; }
+
+  /* WORKLOAD RING */
+  .ring-wrap { position: relative; width: 28px; height: 28px; flex-shrink: 0; }
+  .ring-wrap svg { transform: rotate(-90deg); }
+  .ring-label {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 8px;
+    font-family: var(--font-mono);
+    font-weight: 500;
+  }
+
+  .clean-count-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    background: rgba(0,212,170,0.1);
+    border: 1px solid rgba(0,212,170,0.2);
+    border-radius: 20px;
+    font-size: 11px;
+    font-family: var(--font-mono);
+    color: var(--accent);
+  }
+
+  /* FOOTFALL BAR */
+  .footfall-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .footfall-item:last-child { border-bottom: none; }
+  .footfall-label { font-size: 12px; color: var(--muted); min-width: 110px; font-family: var(--font-mono); }
+  .footfall-bar-wrap { flex: 1; }
+  .footfall-bar-track { height: 6px; background: rgba(255,255,255,0.07); border-radius: 3px; overflow: hidden; }
+  .footfall-bar-fill { height: 100%; border-radius: 3px; transition: width 0.6s ease; background: var(--info); }
+  .footfall-val { font-size: 12px; font-family: var(--font-mono); color: var(--text); min-width: 32px; text-align: right; }
+
+  /* PERIOD SELECTOR */
+  .period-selector { display: flex; gap: 4px; }
+  .period-btn {
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-family: var(--font-mono);
+    cursor: pointer;
+    color: var(--muted);
+    border: 1px solid var(--border);
+    background: none;
+    transition: all 0.15s;
+  }
+  .period-btn.active { background: var(--card2); color: var(--text); border-color: var(--border2); }
+
+  /* BUILDING STRUCTURE OVERVIEW */
+  .building-overview {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+
+  .building-stat-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    cursor: pointer;
+    transition: all 0.15s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .building-stat-card:hover { border-color: var(--border2); transform: translateY(-1px); }
+  .building-stat-card.selected { border-color: var(--accent); background: rgba(0,212,170,0.04); }
+
+  .bsc-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .bsc-name { font-family: var(--font-display); font-weight: 700; font-size: 14px; }
+  .bsc-floors { font-size: 11px; color: var(--muted); font-family: var(--font-mono); }
+  .bsc-stats { display: flex; gap: 10px; }
+  .bsc-stat { text-align: center; }
+  .bsc-stat-val { font-family: var(--font-display); font-weight: 700; font-size: 20px; }
+  .bsc-stat-lbl { font-size: 10px; color: var(--muted); font-family: var(--font-mono); }
+
+  .building-icon {
+    position: absolute;
+    bottom: 10px;
+    right: 14px;
+    font-size: 28px;
+    opacity: 0.12;
+  }
+</style>
 </head>
 <body>
 
-<nav class="navbar">
-    <div class="logo">VConnect</div>
-    <ul class="nav-links">
-        <li><a href="index.html">Home</a></li>
-        <li><a href="dashboard.html" class="active">Dashboard</a></li>
-    </ul>
-</nav>
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="logo">
+    <div class="logo-mark">
+      <div class="logo-icon">🧹</div>
+      <h1>CleanOps</h1>
+    </div>
+    <p>User Dashboard</p>
+  </div>
 
-<section class="hero">
-    <div class="hero-content">
-        <div class="hero-text">
-            <h1>Maintenance Dashboard</h1>
-            <p>Real-time monitoring overview.</p>
+  <nav class="nav">
+    <div class="nav-label">Overview</div>
+    <div class="nav-item active" onclick="switchTab('dashboard', this)">
+      <span class="icon">⬛</span> Dashboard
+    </div>
+    <div class="nav-item" onclick="switchTab('buildings', this)">
+      <span class="icon">🏢</span> Buildings & Floors
+    </div>
+
+    <div class="nav-label">Washrooms</div>
+    <div class="nav-item" onclick="switchTab('washrooms', this)">
+      <span class="icon">🚻</span> Washroom Status
+      <span class="badge warn">2</span>
+    </div>
+    <div class="nav-item" onclick="switchTab('footfall', this)">
+      <span class="icon">👣</span> Footfall & Usage
+    </div>
+    <div class="nav-item" onclick="switchTab('cleaning', this)">
+      <span class="icon">🧼</span> Cleaning Logs
+    </div>
+
+    <div class="nav-label">Staff</div>
+    <div class="nav-item" onclick="switchTab('staff', this)">
+      <span class="icon">👥</span> Staff Performance
+    </div>
+    <div class="nav-item" onclick="switchTab('tasks', this)">
+      <span class="icon">📋</span> Tasks Assigned
+    </div>
+
+    <div class="nav-label">Actions</div>
+    <div class="nav-item" onclick="switchTab('report', this)">
+      <span class="icon">⚠</span> Report Issue
+      <span class="badge" id="issue-badge">7</span>
+    </div>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="user-card">
+      <div class="avatar">GU</div>
+      <div class="user-info">
+        <p>Campus User</p>
+        <span>Viewer Access</span>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div class="page-title" id="page-title">Dashboard Overview</div>
+    <div class="topbar-right">
+      <div class="live-badge">
+        <div class="pulse"></div>
+        LIVE · 14:32
+      </div>
+      <button class="btn primary" onclick="openReportModal()">⚠ Report Issue</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- ========== DASHBOARD TAB ========== -->
+    <div class="tab-view active" id="tab-dashboard">
+
+      <div class="stats-row">
+        <div class="stat-card green">
+          <div class="stat-label">Cleaned Today</div>
+          <div class="stat-value">34</div>
+          <div class="stat-sub">↑ 6 from yesterday</div>
+          <div class="stat-icon">🧼</div>
         </div>
-    </div>
-</section>
+        <div class="stat-card info">
+          <div class="stat-label">Total Footfall</div>
+          <div class="stat-value">612</div>
+          <div class="stat-sub">Across all buildings today</div>
+          <div class="stat-icon">👣</div>
+        </div>
+        <div class="stat-card warn">
+          <div class="stat-label">Avg Rating</div>
+          <div class="stat-value">4.1<span style="font-size:16px">★</span></div>
+          <div class="stat-sub">↑ 0.2 from last week</div>
+          <div class="stat-icon">⭐</div>
+        </div>
+        <div class="stat-card accent">
+          <div class="stat-label">Avg Condition</div>
+          <div class="stat-value">82<span style="font-size:16px">%</span></div>
+          <div class="stat-sub">↓ 4% from last shift</div>
+          <div class="stat-icon">📊</div>
+        </div>
+      </div>
 
-<section class="stats-grid">
-    <div class="stat-card">
-        <h3>Total Reports</h3>
-        <p>24</p>
+      <div class="stats-row" style="grid-template-columns:repeat(3,1fr)">
+        <div class="stat-card green">
+          <div class="stat-label">Cleaned This Week</div>
+          <div class="stat-value">218</div>
+          <div class="stat-sub">Mon–Tue so far</div>
+          <div class="stat-icon">📅</div>
+        </div>
+        <div class="stat-card purple">
+          <div class="stat-label">Cleaned This Month</div>
+          <div class="stat-value">874</div>
+          <div class="stat-sub">April 2025 total</div>
+          <div class="stat-icon">🗓</div>
+        </div>
+        <div class="stat-card danger">
+          <div class="stat-label">Open Issues</div>
+          <div class="stat-value">7</div>
+          <div class="stat-sub">3 high priority</div>
+          <div class="stat-icon">⚠</div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <!-- Recent Activity -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Recent Cleaning Activity</div>
+              <div class="section-sub">Live log across all buildings</div>
+            </div>
+          </div>
+          <div class="scrollable" id="activity-list">
+            <div class="timeline-item">
+              <div class="timeline-dot" style="background:var(--green)"></div>
+              <div class="timeline-content">
+                <div class="timeline-text"><strong>Gateway A — F1 WR01</strong> cleaned by Priya M.</div>
+                <div class="timeline-time">14:28 · Condition: 94% · 12 min</div>
+              </div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-dot" style="background:var(--warn)"></div>
+              <div class="timeline-content">
+                <div class="timeline-text"><strong>NB — F3 WR02</strong> reported low supplies</div>
+                <div class="timeline-time">14:15 · User report via QR</div>
+              </div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-dot" style="background:var(--green)"></div>
+              <div class="timeline-content">
+                <div class="timeline-text"><strong>Kalpana Chawla — F7 WR01</strong> cleaned by Arjun T.</div>
+                <div class="timeline-time">14:02 · Condition: 88% · 9 min</div>
+              </div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-dot" style="background:var(--danger)"></div>
+              <div class="timeline-content">
+                <div class="timeline-text"><strong>Ratan Tata — F12 WR03</strong> — URGENT: water leakage</div>
+                <div class="timeline-time">13:54 · User report · Escalated</div>
+              </div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-dot" style="background:var(--green)"></div>
+              <div class="timeline-content">
+                <div class="timeline-text"><strong>Gateway B — F2 WR01</strong> cleaned by Meena R.</div>
+                <div class="timeline-time">13:40 · Condition: 91% · 11 min</div>
+              </div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-dot" style="background:var(--green)"></div>
+              <div class="timeline-content">
+                <div class="timeline-text"><strong>Homi Bhabha — F4 WR02</strong> cleaned by Karan V.</div>
+                <div class="timeline-time">13:22 · Condition: 87% · 10 min</div>
+              </div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-dot" style="background:var(--info)"></div>
+              <div class="timeline-content">
+                <div class="timeline-text"><strong>Bhagat Singh — F10 WR01</strong> inspection scheduled</div>
+                <div class="timeline-time">13:10 · Auto-assigned · Sunita D.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Cleanings This Week Chart -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Cleanings This Week</div>
+              <div class="section-sub">Daily total across all washrooms</div>
+            </div>
+            <span class="pill info">Tue 07 Apr</span>
+          </div>
+          <div style="padding:16px 20px">
+            <div class="mini-chart">
+              <div class="bar" style="height:55%" title="Mon: 184"></div>
+              <div class="bar today" style="height:60%" title="Tue: 218 (today)"></div>
+              <div class="bar" style="height:40%" title="Wed: planned"></div>
+              <div class="bar" style="height:35%" title="Thu: planned"></div>
+              <div class="bar" style="height:50%" title="Fri: planned"></div>
+              <div class="bar" style="height:70%" title="Sat: avg"></div>
+              <div class="bar" style="height:65%" title="Sun: avg"></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;margin-top:6px">
+              <span style="font-size:11px;color:var(--muted);font-family:var(--font-mono)">Mon</span>
+              <span style="font-size:11px;color:var(--accent);font-family:var(--font-mono);font-weight:500">Tue</span>
+              <span style="font-size:11px;color:var(--muted);font-family:var(--font-mono)">Wed</span>
+              <span style="font-size:11px;color:var(--muted);font-family:var(--font-mono)">Thu</span>
+              <span style="font-size:11px;color:var(--muted);font-family:var(--font-mono)">Fri</span>
+              <span style="font-size:11px;color:var(--muted);font-family:var(--font-mono)">Sat</span>
+              <span style="font-size:11px;color:var(--muted);font-family:var(--font-mono)">Sun</span>
+            </div>
+          </div>
+          <div style="padding:0 20px 16px">
+            <div style="font-size:12px;color:var(--muted);margin-bottom:10px;font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.5px">Top Buildings by Cleans Today</div>
+            <div class="footfall-item">
+              <span class="footfall-label">Kalpana Chawla</span>
+              <div class="footfall-bar-wrap"><div class="footfall-bar-track"><div class="footfall-bar-fill" style="width:88%;background:var(--purple)"></div></div></div>
+              <span class="footfall-val">11</span>
+            </div>
+            <div class="footfall-item">
+              <span class="footfall-label">Ratan Tata</span>
+              <div class="footfall-bar-wrap"><div class="footfall-bar-track"><div class="footfall-bar-fill" style="width:76%;background:var(--info)"></div></div></div>
+              <span class="footfall-val">9</span>
+            </div>
+            <div class="footfall-item">
+              <span class="footfall-label">Bhagat Singh</span>
+              <div class="footfall-bar-wrap"><div class="footfall-bar-track"><div class="footfall-bar-fill" style="width:68%;background:var(--accent)"></div></div></div>
+              <span class="footfall-val">8</span>
+            </div>
+            <div class="footfall-item">
+              <span class="footfall-label">NB Block</span>
+              <div class="footfall-bar-wrap"><div class="footfall-bar-track"><div class="footfall-bar-fill" style="width:50%"></div></div></div>
+              <span class="footfall-val">6</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Last Cleaned Info -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Last Cleaned — All Buildings Summary</div>
+          <span class="pill accent">Updated now</span>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Building / Washroom</th>
+                <th>Last Cleaned</th>
+                <th>By Staff</th>
+                <th>Condition After</th>
+                <th>Rating</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="summary-tbody"></tbody>
+          </table>
+        </div>
+      </div>
     </div>
 
-    <div class="stat-card">
-        <h3>Pending</h3>
-        <p>6</p>
+    <!-- ========== BUILDINGS TAB ========== -->
+    <div class="tab-view" id="tab-buildings">
+      <div class="section-header">
+        <div>
+          <div class="section-title">Buildings & Floors Overview</div>
+          <div class="section-sub">Gateway Buildings · NB Block · Tower Hostels · Apartment Hostels</div>
+        </div>
+      </div>
+
+      <div style="margin-bottom:6px;font-size:11px;color:var(--muted);font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.6px">Gateway Buildings</div>
+      <div class="building-overview" style="margin-bottom:24px">
+        <div class="building-stat-card selected" onclick="selectBuilding(this, 'gateway-a')">
+          <div class="bsc-header">
+            <div>
+              <div class="bsc-name">Gateway A</div>
+              <div class="bsc-floors">1 Floor · 2 Washrooms</div>
+            </div>
+            <span class="pill green">Clean</span>
+          </div>
+          <div class="bsc-stats">
+            <div class="bsc-stat"><div class="bsc-stat-val" style="color:var(--accent)">4</div><div class="bsc-stat-lbl">Cleans/day</div></div>
+            <div class="bsc-stat"><div class="bsc-stat-val" style="color:var(--info)">82</div><div class="bsc-stat-lbl">Footfall</div></div>
+            <div class="bsc-stat"><div class="bsc-stat-val" style="color:var(--warn)">4.3★</div><div class="bsc-stat-lbl">Rating</div></div>
+          </div>
+          <div class="building-icon">🏢</div>
+        </div>
+        <div class="building-stat-card" onclick="selectBuilding(this, 'gateway-b')">
+          <div class="bsc-header">
+            <div>
+              <div class="bsc-name">Gateway B</div>
+              <div class="bsc-floors">3 Floors · 6 Washrooms</div>
+            </div>
+            <span class="pill warn">Fair</span>
+          </div>
+          <div class="bsc-stats">
+            <div class="bsc-stat"><div class="bsc-stat-val" style="color:var(--accent)">9</div><div class="bsc-stat-lbl">Cleans/day</div></div>
+            <div class="bsc-stat"><div class="bsc-stat-val" style="color:var(--info)">148</div><div class="bsc-stat-lbl">Footfall</div></div>
+            <div class="bsc-stat"><div class="bsc-stat-val" style="color:var(--warn)">3.9★</div><div class="bsc-stat-lbl">Rating</div></div>
+          </div>
+          <div class="building-icon">🏢</div>
+        </div>
+        <div class="building-stat-card" onclick="selectBuilding(this, 'nb')">
+          <div class="bsc-header">
+            <div>
+              <div class="bsc-name">NB Block</div>
+              <div class="bsc-floors">4 Floors · 8 Washrooms</div>
+            </div>
+            <span class="pill warn">Fair</span>
+          </div>
+          <div class="bsc-stats">
+            <div class="bsc-stat"><div class="bsc-stat-val" style="color:var(--accent)">6</div><div class="bsc-stat-lbl">Cleans/day</div></div>
+            <div class="bsc-stat"><div class="bsc-stat-val" style="color:var(--info)">210</div><div class="bsc-stat-lbl">Footfall</div></div>
+            <div class="bsc-stat"><div class="bsc-stat-val" style="color:var(--warn)">4.0★</div><div class="bsc-stat-lbl">Rating</div></div>
+          </div>
+          <div class="building-icon">🏛</div>
+        </div>
+      </div>
+
+      <div style="margin-bottom:6px;font-size:11px;color:var(--muted);font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.6px">Tower Hostels</div>
+      <div class="building-overview" style="margin-bottom:24px">
+        <div class="building-stat-card" onclick="selectBuilding(this, 'kalpana')">
+          <div class="bsc-header">
+            <div>
+              <div class="bsc-name">Kalpana Chawla</div>
+              <div class="bsc-floors">10 Floors · 20 Washrooms</div>
+            </div>
+            <span class="pill green">Clean</span>
+          </div>
+          <div class="bsc-stats">
+            <div class="bsc-stat"><div class="bsc-stat-val" style="color:var(--accent)">11</div><div class="bsc-stat-lbl">Cleans/day</div></div>
+            <div class="bsc-stat"><div class="bsc-stat-val" style="color:var(--info)">340</div><div class="bsc-stat-lbl">Footfall</div></div>
+            <div class="bsc-stat"><div class="bsc-stat-val" style="color:var(--warn)">4.5★</div><div class="bsc-stat-lbl">Rating</div></div>
+          </div>
+          <div class="building-icon">🏙</div>
+        </div>
+        <div class="building-stat-card" onclick="selectBuilding(this, 'ratan')">
+          <div class="bsc-header">
+            <div>
+              <div class="bsc-name">Ratan Tata</div>
+              <div class="bsc-floors">14 Floors · 28 Washrooms</div>
+            </div>
+            <span class="pill danger">Alert</span>
+          </div>
+          <div class="bsc-stats">
+            <div class="bsc-stat"><div class="bsc-stat-val" style="color:var(--accent)">9</div><div class="bsc-stat-lbl">Cleans/day</div></div>
+            <div class="bsc-stat"><div class="bsc-stat-val" style="color:var(--info)">412</div><div class="bsc-stat-lbl">Footfall</div></div>
+            <div class="bsc-stat"><div class="bsc-stat-val" style="color:var(--danger)">3.4★</div><div class="bsc-stat-lbl">Rating</div></div>
+          </div>
+          <div class="building-icon">🏙</div>
+        </div>
+        <div class="building-stat-card" onclick="selectBuilding(this, 'bhagat')">
+          <div class="bsc-header">
+            <div>
+              <div class="bsc-name">Bhagat Singh</div>
+              <div class="bsc-floors">14 Floors · 28 Washrooms</div>
+            </div>
+            <span class="pill warn">Fair</span>
+          </div>
+          <div class="bsc-stats">
+            <div class="bsc-stat"><div class="bsc-stat-val" style="color:var(--accent)">8</div><div class="bsc-stat-lbl">Cleans/day</div></div>
+            <div class="bsc-stat"><div class="bsc-stat-val" style="color:var(--info)">380</div><div class="bsc-stat-lbl">Footfall</div></div>
+            <div class="bsc-stat"><div class="bsc-stat-val" style="color:var(--warn)">3.8★</div><div class="bsc-stat-lbl">Rating</div></div>
+          </div>
+          <div class="building-icon">🏙</div>
+        </div>
+      </div>
+
+      <div style="margin-bottom:6px;font-size:11px;color:var(--muted);font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.6px">Apartment Hostels</div>
+      <div class="building-overview">
+        <div class="building-stat-card" onclick="selectBuilding(this, 'homi')">
+          <div class="bsc-header">
+            <div>
+              <div class="bsc-name">Homi Bhabha</div>
+              <div class="bsc-floors">5 Floors · 10 Washrooms</div>
+            </div>
+            <span class="pill green">Clean</span>
+          </div>
+          <div class="bsc-stats">
+            <div class="bsc-stat"><div class="bsc-stat-val" style="color:var(--accent)">5</div><div class="bsc-stat-lbl">Cleans/day</div></div>
+            <div class="bsc-stat"><div class="bsc-stat-val" style="color:var(--info)">112</div><div class="bsc-stat-lbl">Footfall</div></div>
+            <div class="bsc-stat"><div class="bsc-stat-val" style="color:var(--warn)">4.4★</div><div class="bsc-stat-lbl">Rating</div></div>
+          </div>
+          <div class="building-icon">🏠</div>
+        </div>
+        <div class="building-stat-card" onclick="selectBuilding(this, 'vikram')">
+          <div class="bsc-header">
+            <div>
+              <div class="bsc-name">Vikram Sarabhai</div>
+              <div class="bsc-floors">6 Floors · 12 Washrooms</div>
+            </div>
+            <span class="pill green">Clean</span>
+          </div>
+          <div class="bsc-stats">
+            <div class="bsc-stat"><div class="bsc-stat-val" style="color:var(--accent)">6</div><div class="bsc-stat-lbl">Cleans/day</div></div>
+            <div class="bsc-stat"><div class="bsc-stat-val" style="color:var(--info)">130</div><div class="bsc-stat-lbl">Footfall</div></div>
+            <div class="bsc-stat"><div class="bsc-stat-val" style="color:var(--warn)">4.2★</div><div class="bsc-stat-lbl">Rating</div></div>
+          </div>
+          <div class="building-icon">🏠</div>
+        </div>
+        <div class="building-stat-card" onclick="selectBuilding(this, 'gargi')">
+          <div class="bsc-header">
+            <div>
+              <div class="bsc-name">Gargi</div>
+              <div class="bsc-floors">5 Floors · 10 Washrooms</div>
+            </div>
+            <span class="pill warn">Fair</span>
+          </div>
+          <div class="bsc-stats">
+            <div class="bsc-stat"><div class="bsc-stat-val" style="color:var(--accent)">4</div><div class="bsc-stat-lbl">Cleans/day</div></div>
+            <div class="bsc-stat"><div class="bsc-stat-val" style="color:var(--info)">98</div><div class="bsc-stat-lbl">Footfall</div></div>
+            <div class="bsc-stat"><div class="bsc-stat-val" style="color:var(--warn)">3.9★</div><div class="bsc-stat-lbl">Rating</div></div>
+          </div>
+          <div class="building-icon">🏠</div>
+        </div>
+        <div class="building-stat-card" onclick="selectBuilding(this, 'kalam')">
+          <div class="bsc-header">
+            <div>
+              <div class="bsc-name">Abdul Kalam</div>
+              <div class="bsc-floors">6 Floors · 12 Washrooms</div>
+            </div>
+            <span class="pill green">Clean</span>
+          </div>
+          <div class="bsc-stats">
+            <div class="bsc-stat"><div class="bsc-stat-val" style="color:var(--accent)">5</div><div class="bsc-stat-lbl">Cleans/day</div></div>
+            <div class="bsc-stat"><div class="bsc-stat-val" style="color:var(--info)">108</div><div class="bsc-stat-lbl">Footfall</div></div>
+            <div class="bsc-stat"><div class="bsc-stat-val" style="color:var(--warn)">4.1★</div><div class="bsc-stat-lbl">Rating</div></div>
+          </div>
+          <div class="building-icon">🏠</div>
+        </div>
+      </div>
     </div>
 
-    <div class="stat-card">
-        <h3>Resolved</h3>
-        <p>18</p>
-    </div>
-</section>
+    <!-- ========== WASHROOMS TAB ========== -->
+    <div class="tab-view" id="tab-washrooms">
+      <div class="section-header">
+        <div>
+          <div class="section-title">Washroom Status</div>
+          <div class="section-sub">Live condition, usage count, footfall and last clean per washroom</div>
+        </div>
+      </div>
 
+      <div class="building-tabs" id="wr-building-tabs">
+        <button class="building-tab active" onclick="filterWashrooms('all', this)">All Buildings</button>
+        <button class="building-tab" onclick="filterWashrooms('gateway-a', this)">Gateway A</button>
+        <button class="building-tab" onclick="filterWashrooms('gateway-b', this)">Gateway B</button>
+        <button class="building-tab" onclick="filterWashrooms('nb', this)">NB Block</button>
+        <button class="building-tab" onclick="filterWashrooms('kalpana', this)">Kalpana Chawla</button>
+        <button class="building-tab" onclick="filterWashrooms('ratan', this)">Ratan Tata</button>
+        <button class="building-tab" onclick="filterWashrooms('bhagat', this)">Bhagat Singh</button>
+        <button class="building-tab" onclick="filterWashrooms('homi', this)">Homi Bhabha</button>
+        <button class="building-tab" onclick="filterWashrooms('vikram', this)">Vikram Sarabhai</button>
+        <button class="building-tab" onclick="filterWashrooms('gargi', this)">Gargi</button>
+        <button class="building-tab" onclick="filterWashrooms('kalam', this)">Abdul Kalam</button>
+      </div>
+
+      <div id="washroom-container"></div>
+    </div>
+
+    <!-- ========== FOOTFALL TAB ========== -->
+    <div class="tab-view" id="tab-footfall">
+      <div class="section-header">
+        <div>
+          <div class="section-title">Footfall & Usage Analytics</div>
+          <div class="section-sub">Count of washroom usage across buildings and time periods</div>
+        </div>
+        <div class="period-selector">
+          <button class="period-btn active" onclick="setPeriod('day', this)">Day</button>
+          <button class="period-btn" onclick="setPeriod('week', this)">Week</button>
+          <button class="period-btn" onclick="setPeriod('month', this)">Month</button>
+        </div>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-card info">
+          <div class="stat-label">Total Today</div>
+          <div class="stat-value" id="ff-total">612</div>
+          <div class="stat-sub">All buildings combined</div>
+          <div class="stat-icon">👣</div>
+        </div>
+        <div class="stat-card green">
+          <div class="stat-label">Peak Hour</div>
+          <div class="stat-value">09:00</div>
+          <div class="stat-sub">Highest traffic window</div>
+          <div class="stat-icon">⏰</div>
+        </div>
+        <div class="stat-card warn">
+          <div class="stat-label">Busiest Building</div>
+          <div class="stat-value" style="font-size:18px">Ratan Tata</div>
+          <div class="stat-sub">412 visits today</div>
+          <div class="stat-icon">🏙</div>
+        </div>
+        <div class="stat-card accent">
+          <div class="stat-label">Avg per Washroom</div>
+          <div class="stat-value">27</div>
+          <div class="stat-sub">Visits per washroom/day</div>
+          <div class="stat-icon">📐</div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Footfall by Building</div>
+          </div>
+          <div style="padding:16px 20px" id="footfall-building-bars">
+            <div class="footfall-item">
+              <span class="footfall-label">Ratan Tata</span>
+              <div class="footfall-bar-wrap"><div class="footfall-bar-track"><div class="footfall-bar-fill" style="width:100%;background:var(--danger)"></div></div></div>
+              <span class="footfall-val">412</span>
+            </div>
+            <div class="footfall-item">
+              <span class="footfall-label">Bhagat Singh</span>
+              <div class="footfall-bar-wrap"><div class="footfall-bar-track"><div class="footfall-bar-fill" style="width:92%;background:var(--warn)"></div></div></div>
+              <span class="footfall-val">380</span>
+            </div>
+            <div class="footfall-item">
+              <span class="footfall-label">Kalpana Chawla</span>
+              <div class="footfall-bar-wrap"><div class="footfall-bar-track"><div class="footfall-bar-fill" style="width:82%;background:var(--purple)"></div></div></div>
+              <span class="footfall-val">340</span>
+            </div>
+            <div class="footfall-item">
+              <span class="footfall-label">NB Block</span>
+              <div class="footfall-bar-wrap"><div class="footfall-bar-track"><div class="footfall-bar-fill" style="width:51%"></div></div></div>
+              <span class="footfall-val">210</span>
+            </div>
+            <div class="footfall-item">
+              <span class="footfall-label">Gateway B</span>
+              <div class="footfall-bar-wrap"><div class="footfall-bar-track"><div class="footfall-bar-fill" style="width:36%;background:var(--info)"></div></div></div>
+              <span class="footfall-val">148</span>
+            </div>
+            <div class="footfall-item">
+              <span class="footfall-label">Vikram Sarabhai</span>
+              <div class="footfall-bar-wrap"><div class="footfall-bar-track"><div class="footfall-bar-fill" style="width:32%;background:var(--green)"></div></div></div>
+              <span class="footfall-val">130</span>
+            </div>
+            <div class="footfall-item">
+              <span class="footfall-label">Homi Bhabha</span>
+              <div class="footfall-bar-wrap"><div class="footfall-bar-track"><div class="footfall-bar-fill" style="width:27%;background:var(--green)"></div></div></div>
+              <span class="footfall-val">112</span>
+            </div>
+            <div class="footfall-item">
+              <span class="footfall-label">Abdul Kalam</span>
+              <div class="footfall-bar-wrap"><div class="footfall-bar-track"><div class="footfall-bar-fill" style="width:26%;background:var(--accent)"></div></div></div>
+              <span class="footfall-val">108</span>
+            </div>
+            <div class="footfall-item">
+              <span class="footfall-label">Gargi</span>
+              <div class="footfall-bar-wrap"><div class="footfall-bar-track"><div class="footfall-bar-fill" style="width:24%;background:var(--accent)"></div></div></div>
+              <span class="footfall-val">98</span>
+            </div>
+            <div class="footfall-item">
+              <span class="footfall-label">Gateway A</span>
+              <div class="footfall-bar-wrap"><div class="footfall-bar-track"><div class="footfall-bar-fill" style="width:20%;background:var(--info)"></div></div></div>
+              <span class="footfall-val">82</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Hourly Traffic Pattern</div>
+            <span class="pill muted">Today</span>
+          </div>
+          <div style="padding:16px 20px">
+            <div class="mini-chart" style="height:80px;gap:3px">
+              <div class="bar" style="height:30%" title="06:00 – 18"></div>
+              <div class="bar" style="height:55%" title="07:00 – 34"></div>
+              <div class="bar" style="height:90%" title="08:00 – 55"></div>
+              <div class="bar today" style="height:100%" title="09:00 – 62 (peak)"></div>
+              <div class="bar" style="height:78%" title="10:00 – 48"></div>
+              <div class="bar" style="height:60%" title="11:00 – 37"></div>
+              <div class="bar" style="height:72%" title="12:00 – 44"></div>
+              <div class="bar" style="height:85%" title="13:00 – 52"></div>
+              <div class="bar" style="height:68%" title="14:00 – 42"></div>
+              <div class="bar" style="height:55%" title="15:00 – 34"></div>
+              <div class="bar" style="height:45%" title="16:00 – 28"></div>
+              <div class="bar" style="height:38%" title="17:00 – 24"></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;margin-top:6px">
+              <span style="font-size:10px;color:var(--muted);font-family:var(--font-mono)">06:00</span>
+              <span style="font-size:10px;color:var(--muted);font-family:var(--font-mono)">08:00</span>
+              <span style="font-size:10px;color:var(--accent);font-family:var(--font-mono)">09:00↑</span>
+              <span style="font-size:10px;color:var(--muted);font-family:var(--font-mono)">11:00</span>
+              <span style="font-size:10px;color:var(--muted);font-family:var(--font-mono)">13:00</span>
+              <span style="font-size:10px;color:var(--muted);font-family:var(--font-mono)">15:00</span>
+              <span style="font-size:10px;color:var(--muted);font-family:var(--font-mono)">17:00</span>
+            </div>
+          </div>
+          <div style="padding:0 20px 16px">
+            <div class="footfall-item">
+              <span class="footfall-label">Ladies WR</span>
+              <div class="footfall-bar-wrap"><div class="footfall-bar-track"><div class="footfall-bar-fill" style="width:58%;background:var(--purple)"></div></div></div>
+              <span class="footfall-val">355</span>
+            </div>
+            <div class="footfall-item">
+              <span class="footfall-label">Gents WR</span>
+              <div class="footfall-bar-wrap"><div class="footfall-bar-track"><div class="footfall-bar-fill" style="width:42%;background:var(--info)"></div></div></div>
+              <span class="footfall-val">257</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== CLEANING LOGS TAB ========== -->
+    <div class="tab-view" id="tab-cleaning">
+      <div class="section-header">
+        <div>
+          <div class="section-title">Cleaning Logs</div>
+          <div class="section-sub">How many times cleaned — by day, week, and month — with staff and condition</div>
+        </div>
+        <div class="period-selector">
+          <button class="period-btn active" onclick="setPeriod('day', this)">Today</button>
+          <button class="period-btn" onclick="setPeriod('week', this)">This Week</button>
+          <button class="period-btn" onclick="setPeriod('month', this)">This Month</button>
+        </div>
+      </div>
+
+      <div class="stats-row" style="grid-template-columns:repeat(3,1fr)">
+        <div class="stat-card green">
+          <div class="stat-label">Cleaned Today</div>
+          <div class="stat-value">34</div>
+          <div class="stat-sub">Across all buildings</div>
+          <div class="stat-icon">🧼</div>
+        </div>
+        <div class="stat-card info">
+          <div class="stat-label">Cleaned This Week</div>
+          <div class="stat-value">218</div>
+          <div class="stat-sub">Mon–Tue (2 days)</div>
+          <div class="stat-icon">📅</div>
+        </div>
+        <div class="stat-card purple">
+          <div class="stat-label">Cleaned This Month</div>
+          <div class="stat-value">874</div>
+          <div class="stat-sub">April 2025 — 7 days</div>
+          <div class="stat-icon">🗓</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Detailed Cleaning Log</div>
+          <div class="filter-tabs">
+            <button class="filter-tab active" onclick="filterCleanLog('all', this)">All</button>
+            <button class="filter-tab" onclick="filterCleanLog('gateway-a', this)">Gateway A</button>
+            <button class="filter-tab" onclick="filterCleanLog('gateway-b', this)">Gateway B</button>
+            <button class="filter-tab" onclick="filterCleanLog('nb', this)">NB</button>
+            <button class="filter-tab" onclick="filterCleanLog('hostels', this)">Hostels</button>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Location</th>
+                <th>Last Cleaned</th>
+                <th>Staff Member</th>
+                <th>Times Today</th>
+                <th>Times/Week</th>
+                <th>Times/Month</th>
+                <th>Condition After</th>
+              </tr>
+            </thead>
+            <tbody id="cleaning-log-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== STAFF TAB ========== -->
+    <div class="tab-view" id="tab-staff">
+      <div class="section-header">
+        <div>
+          <div class="section-title">Staff Performance</div>
+          <div class="section-sub">Cleaning counts, last cleaned, condition after clean per staff member</div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:20px">
+        <div class="card-header">
+          <div class="card-title">Staff Overview</div>
+          <span class="pill green">8 active</span>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Staff Member</th>
+                <th>Cleans Today</th>
+                <th>Cleans / Week</th>
+                <th>Cleans / Month</th>
+                <th>Last Cleaned</th>
+                <th>Avg Condition</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="staff-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Per-staff cleaning history -->
+      <div class="section-header" style="margin-top:8px">
+        <div class="section-title" style="font-size:15px">Cleaning History by Staff</div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Recent Cleans — All Staff</div>
+        </div>
+        <div class="scrollable" id="staff-history-list"></div>
+      </div>
+    </div>
+
+    <!-- ========== TASKS TAB ========== -->
+    <div class="tab-view" id="tab-tasks">
+      <div class="section-header">
+        <div>
+          <div class="section-title">Tasks Assigned</div>
+          <div class="section-sub">All cleaning tasks across buildings — pending and completed</div>
+        </div>
+        <div class="filter-tabs">
+          <button class="filter-tab active" onclick="filterTasks('all', this)">All</button>
+          <button class="filter-tab" onclick="filterTasks('pending', this)">Pending</button>
+          <button class="filter-tab" onclick="filterTasks('done', this)">Done</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div id="tasks-list" class="scrollable"></div>
+      </div>
+    </div>
+
+    <!-- ========== REPORT TAB ========== -->
+    <div class="tab-view" id="tab-report">
+      <div class="section-header">
+        <div>
+          <div class="section-title">Report an Issue</div>
+          <div class="section-sub">Submit washroom issues — scanned via QR or reported manually</div>
+        </div>
+        <span class="pill danger">7 open issues</span>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header"><div class="card-title">Open Reports</div></div>
+          <div id="issues-container"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><div class="card-title">Submit New Report</div></div>
+          <div style="padding:20px">
+            <div class="form-group">
+              <label class="form-label">Building</label>
+              <select class="form-select" id="report-building" onchange="updateReportFloors()">
+                <option value="gateway-a">Gateway Building A</option>
+                <option value="gateway-b">Gateway Building B</option>
+                <option value="nb">NB Block</option>
+                <option value="kalpana">Kalpana Chawla Hostel</option>
+                <option value="ratan">Ratan Tata Hostel</option>
+                <option value="bhagat">Bhagat Singh Hostel</option>
+                <option value="homi">Homi Bhabha</option>
+                <option value="vikram">Vikram Sarabhai</option>
+                <option value="gargi">Gargi</option>
+                <option value="kalam">Abdul Kalam</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Floor</label>
+              <select class="form-select" id="report-floor"></select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Washroom</label>
+              <select class="form-select" id="report-wr">
+                <option>WR01 — Ladies</option>
+                <option>WR02 — Gents</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Issue Type</label>
+              <select class="form-select" id="report-type">
+                <option>Cleaning Required</option>
+                <option>Low Supplies</option>
+                <option>Water Leakage</option>
+                <option>Broken Fixture</option>
+                <option>Foul Smell</option>
+                <option>Blocked Drain</option>
+                <option>Other</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Rate Current Condition</label>
+              <div class="rating-input" id="rating-stars">
+                <button class="rate-btn" onclick="selectRating(1)">1★</button>
+                <button class="rate-btn" onclick="selectRating(2)">2★</button>
+                <button class="rate-btn" onclick="selectRating(3)">3★</button>
+                <button class="rate-btn" onclick="selectRating(4)">4★</button>
+                <button class="rate-btn" onclick="selectRating(5)">5★</button>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Description</label>
+              <textarea class="form-textarea" id="report-desc" placeholder="Describe the issue in detail..."></textarea>
+            </div>
+            <button class="btn primary" style="width:100%" onclick="submitReport()">Submit Report ↗</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+
+<!-- REPORT MODAL -->
+<div class="modal-overlay" id="report-modal">
+  <div class="modal">
+    <div class="modal-title">Report an Issue</div>
+    <div class="modal-sub">Scan or manually report a washroom problem</div>
+    <div class="form-group">
+      <label class="form-label">Building</label>
+      <select class="form-select" id="modal-building">
+        <option>Gateway Building A — F1</option>
+        <option>Gateway Building B — F1 to F3</option>
+        <option>NB Block — F1 to F4</option>
+        <option>Kalpana Chawla — F1 to F10</option>
+        <option>Ratan Tata — F1 to F14</option>
+        <option>Bhagat Singh — F1 to F14</option>
+        <option>Homi Bhabha — F1 to F5</option>
+        <option>Vikram Sarabhai — F1 to F6</option>
+        <option>Gargi — F1 to F5</option>
+        <option>Abdul Kalam — F1 to F6</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Issue Type</label>
+      <select class="form-select">
+        <option>Cleaning Required</option>
+        <option>Low Supplies</option>
+        <option>Water Leakage</option>
+        <option>Broken Fixture</option>
+        <option>Foul Smell</option>
+        <option>Other</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Rate Current Condition</label>
+      <div class="rating-input">
+        <button class="rate-btn" onclick="selectRating2(1, this)">1★</button>
+        <button class="rate-btn" onclick="selectRating2(2, this)">2★</button>
+        <button class="rate-btn" onclick="selectRating2(3, this)">3★</button>
+        <button class="rate-btn" onclick="selectRating2(4, this)">4★</button>
+        <button class="rate-btn" onclick="selectRating2(5, this)">5★</button>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Description (optional)</label>
+      <textarea class="form-textarea" placeholder="Describe the issue..."></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal()">Cancel</button>
+      <button class="btn primary" onclick="submitModalReport()">Submit Report ↗</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <span>✓</span>
+  <span id="toast-msg"></span>
+</div>
+
+<script>
+// ===== DATA =====
+const staff = [
+  { name:'Priya Mehta',    initials:'PM', color:'linear-gradient(135deg,#00d4aa,#0d9488)', cleans:6, week:38, month:152, lastCleaned:'14:28 — Gateway A F1 WR01',     condition:94, status:'active' },
+  { name:'Arjun Tiwari',   initials:'AT', color:'linear-gradient(135deg,#3b82f6,#1d4ed8)', cleans:5, week:34, month:138, lastCleaned:'14:02 — Kalpana Chawla F7 WR01', condition:88, status:'active' },
+  { name:'Meena Rawat',    initials:'MR', color:'linear-gradient(135deg,#8b5cf6,#6d28d9)', cleans:4, week:29, month:116, lastCleaned:'13:40 — Gateway B F2 WR01',     condition:91, status:'active' },
+  { name:'Karan Verma',    initials:'KV', color:'linear-gradient(135deg,#f59e0b,#d97706)', cleans:4, week:31, month:124, lastCleaned:'13:22 — Homi Bhabha F4 WR02',   condition:87, status:'active' },
+  { name:'Sunita Devi',    initials:'SD', color:'linear-gradient(135deg,#ef4444,#b91c1c)', cleans:3, week:24, month:96,  lastCleaned:'13:10 — Bhagat Singh F10 WR01', condition:85, status:'on-break' },
+  { name:'Raju Sharma',    initials:'RS', color:'linear-gradient(135deg,#10b981,#059669)', cleans:5, week:36, month:144, lastCleaned:'12:55 — NB F3 WR02',            condition:90, status:'active' },
+  { name:'Anita Yadav',    initials:'AY', color:'linear-gradient(135deg,#06b6d4,#0e7490)', cleans:3, week:22, month:88,  lastCleaned:'12:30 — Ratan Tata F8 WR01',   condition:83, status:'active' },
+  { name:'Deepak Nair',    initials:'DN', color:'linear-gradient(135deg,#f97316,#c2410c)', cleans:4, week:28, month:112, lastCleaned:'12:18 — Vikram Sarabhai F5 WR01',condition:89, status:'active' },
+];
+
+const washrooms = [
+  { id:'GA-F1-WR01', building:'Gateway A', bKey:'gateway-a', floor:'Floor 1', type:'Ladies',  footfall:44, cleaned:4,  condition:94, condClass:'clean', lastBy:'Priya M.',  lastTime:'14:28', rating:4.7 },
+  { id:'GA-F1-WR02', building:'Gateway A', bKey:'gateway-a', floor:'Floor 1', type:'Gents',   footfall:38, cleaned:3,  condition:88, condClass:'clean', lastBy:'Arjun T.', lastTime:'13:10', rating:4.3 },
+
+  { id:'GB-F1-WR01', building:'Gateway B', bKey:'gateway-b', floor:'Floor 1', type:'Ladies',  footfall:52, cleaned:3,  condition:86, condClass:'clean', lastBy:'Meena R.',  lastTime:'13:40', rating:4.1 },
+  { id:'GB-F1-WR02', building:'Gateway B', bKey:'gateway-b', floor:'Floor 1', type:'Gents',   footfall:48, cleaned:3,  condition:84, condClass:'clean', lastBy:'Karan V.', lastTime:'13:00', rating:3.9 },
+  { id:'GB-F2-WR01', building:'Gateway B', bKey:'gateway-b', floor:'Floor 2', type:'Ladies',  footfall:44, cleaned:3,  condition:81, condClass:'fair',  lastBy:'Priya M.',  lastTime:'12:15', rating:3.8 },
+  { id:'GB-F2-WR02', building:'Gateway B', bKey:'gateway-b', floor:'Floor 2', type:'Gents',   footfall:40, cleaned:2,  condition:73, condClass:'fair',  lastBy:'Raju S.',   lastTime:'11:50', rating:3.6 },
+  { id:'GB-F3-WR01', building:'Gateway B', bKey:'gateway-b', floor:'Floor 3', type:'Ladies',  footfall:36, cleaned:2,  condition:79, condClass:'fair',  lastBy:'Anita Y.',  lastTime:'11:30', rating:3.9 },
+  { id:'GB-F3-WR02', building:'Gateway B', bKey:'gateway-b', floor:'Floor 3', type:'Gents',   footfall:34, cleaned:2,  condition:72, condClass:'fair',  lastBy:'Deepak N.', lastTime:'11:10', rating:3.7 },
+
+  { id:'NB-F1-WR01', building:'NB Block',  bKey:'nb',        floor:'Floor 1', type:'Ladies',  footfall:58, cleaned:2,  condition:77, condClass:'fair',  lastBy:'Sunita D.', lastTime:'12:00', rating:3.8 },
+  { id:'NB-F1-WR02', building:'NB Block',  bKey:'nb',        floor:'Floor 1', type:'Gents',   footfall:52, cleaned:2,  condition:74, condClass:'fair',  lastBy:'Raju S.',   lastTime:'11:45', rating:3.7 },
+  { id:'NB-F2-WR01', building:'NB Block',  bKey:'nb',        floor:'Floor 2', type:'Ladies',  footfall:50, cleaned:1,  condition:68, condClass:'fair',  lastBy:'Karan V.', lastTime:'10:20', rating:3.5 },
+  { id:'NB-F2-WR02', building:'NB Block',  bKey:'nb',        floor:'Floor 2', type:'Gents',   footfall:48, cleaned:1,  condition:66, condClass:'fair',  lastBy:'Arjun T.', lastTime:'10:00', rating:3.4 },
+  { id:'NB-F3-WR01', building:'NB Block',  bKey:'nb',        floor:'Floor 3', type:'Ladies',  footfall:28, cleaned:1,  condition:58, condClass:'dirty', lastBy:'Meena R.',  lastTime:'09:10', rating:2.9 },
+  { id:'NB-F3-WR02', building:'NB Block',  bKey:'nb',        floor:'Floor 3', type:'Gents',   footfall:26, cleaned:1,  condition:55, condClass:'dirty', lastBy:'Priya M.',  lastTime:'09:00', rating:2.8 },
+  { id:'NB-F4-WR01', building:'NB Block',  bKey:'nb',        floor:'Floor 4', type:'Ladies',  footfall:24, cleaned:1,  condition:70, condClass:'fair',  lastBy:'Deepak N.', lastTime:'09:30', rating:3.6 },
+  { id:'NB-F4-WR02', building:'NB Block',  bKey:'nb',        floor:'Floor 4', type:'Gents',   footfall:22, cleaned:1,  condition:68, condClass:'fair',  lastBy:'Anita Y.',  lastTime:'09:20', rating:3.5 },
+
+  { id:'KC-F7-WR01',  building:'Kalpana Chawla', bKey:'kalpana', floor:'Floor 7',  type:'Ladies', footfall:38, cleaned:2, condition:91, condClass:'clean', lastBy:'Arjun T.',  lastTime:'14:02', rating:4.5 },
+  { id:'KC-F10-WR01', building:'Kalpana Chawla', bKey:'kalpana', floor:'Floor 10', type:'Gents',  footfall:34, cleaned:1, condition:85, condClass:'clean', lastBy:'Priya M.',  lastTime:'13:00', rating:4.2 },
+
+  { id:'RT-F8-WR01',  building:'Ratan Tata',  bKey:'ratan',  floor:'Floor 8',  type:'Ladies',  footfall:32, cleaned:1,  condition:62, condClass:'dirty', lastBy:'Anita Y.',  lastTime:'12:30', rating:2.8 },
+  { id:'RT-F12-WR03', building:'Ratan Tata',  bKey:'ratan',  floor:'Floor 12', type:'Gents',   footfall:28, cleaned:1,  condition:55, condClass:'dirty', lastBy:'Sunita D.', lastTime:'11:00', rating:2.5 },
+
+  { id:'BS-F10-WR01', building:'Bhagat Singh', bKey:'bhagat', floor:'Floor 10', type:'Ladies', footfall:30, cleaned:2,  condition:80, condClass:'fair',  lastBy:'Sunita D.', lastTime:'13:10', rating:3.8 },
+
+  { id:'HB-F4-WR02',  building:'Homi Bhabha',    bKey:'homi',   floor:'Floor 4', type:'Gents',  footfall:26, cleaned:2,  condition:87, condClass:'clean', lastBy:'Karan V.', lastTime:'13:22', rating:4.4 },
+  { id:'VS-F5-WR01',  building:'Vikram Sarabhai', bKey:'vikram', floor:'Floor 5', type:'Ladies', footfall:24, cleaned:2,  condition:89, condClass:'clean', lastBy:'Deepak N.', lastTime:'12:55', rating:4.3 },
+  { id:'GG-F3-WR01',  building:'Gargi',           bKey:'gargi',  floor:'Floor 3', type:'Ladies', footfall:22, cleaned:1,  condition:76, condClass:'fair',  lastBy:'Meena R.',  lastTime:'12:10', rating:3.9 },
+  { id:'AK-F4-WR02',  building:'Abdul Kalam',     bKey:'kalam',  floor:'Floor 4', type:'Gents',  footfall:22, cleaned:2,  condition:85, condClass:'clean', lastBy:'Raju S.',   lastTime:'12:00', rating:4.1 },
+];
+
+const allTasks = [
+  { loc:'Gateway A — F1 WR01',       type:'Morning Clean',     staff:'Priya M.',  status:'done',    priority:'normal',  time:'09:00' },
+  { loc:'Gateway B — F1 WR01',       type:'Routine Inspection',staff:'Meena R.',  status:'done',    priority:'normal',  time:'10:30' },
+  { loc:'Kalpana Chawla — F3 WR01',  type:'Deep Clean',        staff:'Arjun T.',  status:'done',    priority:'normal',  time:'11:00' },
+  { loc:'NB Block — F2 WR01',        type:'Supply Restock',    staff:'Karan V.', status:'done',    priority:'normal',  time:'12:15' },
+  { loc:'Ratan Tata — F12 WR03',     type:'Emergency Repair',  staff:'Sunita D.', status:'pending', priority:'urgent',  time:'URGENT' },
+  { loc:'Gateway B — F3 WR01',       type:'Afternoon Clean',   staff:'Raju S.',   status:'pending', priority:'high',    time:'15:00' },
+  { loc:'Bhagat Singh — F10 WR01',   type:'Inspection',        staff:'Anita Y.',  status:'pending', priority:'normal',  time:'16:00' },
+  { loc:'Homi Bhabha — F4 WR02',     type:'End-of-day Clean',  staff:'Deepak N.', status:'pending', priority:'normal',  time:'17:30' },
+  { loc:'NB Block — F3 WR02',        type:'Supply Restock',    staff:'Priya M.',  status:'pending', priority:'high',    time:'15:30' },
+  { loc:'Vikram Sarabhai — F5 WR01', type:'Routine Clean',     staff:'Deepak N.', status:'done',    priority:'normal',  time:'11:45' },
+  { loc:'Gargi — F3 WR01',           type:'Morning Clean',     staff:'Meena R.',  status:'done',    priority:'normal',  time:'09:30' },
+  { loc:'Abdul Kalam — F4 WR02',     type:'Routine Clean',     staff:'Raju S.',   status:'done',    priority:'normal',  time:'10:00' },
+];
+
+const issues = [
+  { id:1, title:'Ratan Tata F12 WR03 — Water leakage',       loc:'Ratan Tata · F12',      severity:'danger', status:'open',     time:'13:54',  source:'QR Scan', assigned:'Karan V.' },
+  { id:2, title:'NB Block F3 WR02 — Low soap supply',         loc:'NB Block · F3',         severity:'warn',   status:'open',     time:'13:20',  source:'QR Scan', assigned:'Priya M.' },
+  { id:3, title:'Gateway B F2 WR02 — Foul smell',             loc:'Gateway B · F2',        severity:'warn',   status:'progress', time:'12:50',  source:'Manual',  assigned:'Raju S.'   },
+  { id:4, title:'Bhagat Singh F10 WR01 — Blocked drain',      loc:'Bhagat Singh · F10',    severity:'danger', status:'open',     time:'12:30',  source:'QR Scan', assigned:'Sunita D.' },
+  { id:5, title:'Kalpana Chawla F7 WR01 — Broken dispenser',  loc:'Kalpana Chawla · F7',   severity:'warn',   status:'progress', time:'11:45',  source:'QR Scan', assigned:'Anita Y.'  },
+  { id:6, title:'NB Block F4 WR01 — Poor ventilation',        loc:'NB Block · F4',         severity:'info',   status:'open',     time:'11:20',  source:'Staff',   assigned:'Arjun T.'  },
+  { id:7, title:'Gateway A F1 WR02 — Broken lock',            loc:'Gateway A · F1',        severity:'green',  status:'resolved', time:'10:00',  source:'QR Scan', assigned:'Deepak N.' },
+];
+
+const cleaningLog = [
+  { loc:'Gateway A — F1 WR01', bKey:'gateway-a', lastTime:'14:28', lastBy:'Priya M.',  today:4, week:24, month:96,  condition:94 },
+  { loc:'Gateway A — F1 WR02', bKey:'gateway-a', lastTime:'13:10', lastBy:'Arjun T.', today:3, week:18, month:72,  condition:88 },
+  { loc:'Gateway B — F1 WR01', bKey:'gateway-b', lastTime:'13:40', lastBy:'Meena R.',  today:3, week:20, month:80,  condition:86 },
+  { loc:'Gateway B — F2 WR02', bKey:'gateway-b', lastTime:'11:50', lastBy:'Raju S.',   today:2, week:16, month:64,  condition:73 },
+  { loc:'NB Block — F2 WR01',  bKey:'nb',         lastTime:'10:20', lastBy:'Karan V.', today:1, week:8,  month:32,  condition:68 },
+  { loc:'NB Block — F3 WR01',  bKey:'nb',         lastTime:'09:10', lastBy:'Meena R.',  today:1, week:6,  month:24,  condition:58 },
+  { loc:'Kalpana Chawla F7',   bKey:'kalpana',    lastTime:'14:02', lastBy:'Arjun T.', today:2, week:14, month:56,  condition:91 },
+  { loc:'Ratan Tata F8 WR01',  bKey:'ratan',      lastTime:'12:30', lastBy:'Anita Y.',  today:1, week:7,  month:28,  condition:62 },
+  { loc:'Ratan Tata F12 WR03', bKey:'ratan',      lastTime:'11:00', lastBy:'Sunita D.', today:1, week:6,  month:24,  condition:55 },
+  { loc:'Bhagat Singh F10',    bKey:'bhagat',     lastTime:'13:10', lastBy:'Sunita D.', today:2, week:12, month:48,  condition:80 },
+  { loc:'Homi Bhabha F4 WR02', bKey:'homi',       lastTime:'13:22', lastBy:'Karan V.', today:2, week:14, month:56,  condition:87 },
+  { loc:'Vikram Sarabhai F5',  bKey:'vikram',     lastTime:'12:55', lastBy:'Deepak N.', today:2, week:14, month:56,  condition:89 },
+  { loc:'Gargi F3 WR01',       bKey:'gargi',      lastTime:'12:10', lastBy:'Meena R.',  today:1, week:7,  month:28,  condition:76 },
+  { loc:'Abdul Kalam F4 WR02', bKey:'kalam',      lastTime:'12:00', lastBy:'Raju S.',   today:2, week:14, month:56,  condition:85 },
+];
+
+const summaryRows = [
+  { loc:'Gateway A — F1 WR01',      lastTime:'14:28', lastBy:'Priya M.',  condition:94, rating:4.7, status:'clean' },
+  { loc:'Gateway B — F3 WR01',      lastTime:'11:30', lastBy:'Anita Y.',  condition:79, rating:3.9, status:'fair'  },
+  { loc:'NB Block — F3 WR02',       lastTime:'09:00', lastBy:'Priya M.',  condition:55, rating:2.8, status:'dirty' },
+  { loc:'Kalpana Chawla — F7 WR01', lastTime:'14:02', lastBy:'Arjun T.', condition:91, rating:4.5, status:'clean' },
+  { loc:'Ratan Tata — F12 WR03',    lastTime:'11:00', lastBy:'Sunita D.', condition:55, rating:2.5, status:'dirty' },
+  { loc:'Bhagat Singh — F10 WR01',  lastTime:'13:10', lastBy:'Sunita D.', condition:80, rating:3.8, status:'fair'  },
+  { loc:'Homi Bhabha — F4 WR02',    lastTime:'13:22', lastBy:'Karan V.', condition:87, rating:4.4, status:'clean' },
+  { loc:'Vikram Sarabhai — F5 WR01',lastTime:'12:55', lastBy:'Deepak N.', condition:89, rating:4.3, status:'clean' },
+  { loc:'Gargi — F3 WR01',          lastTime:'12:10', lastBy:'Meena R.',  condition:76, rating:3.9, status:'fair'  },
+  { loc:'Abdul Kalam — F4 WR02',    lastTime:'12:00', lastBy:'Raju S.',   condition:85, rating:4.1, status:'clean' },
+];
+
+const buildingFloors = {
+  'gateway-a': 1, 'gateway-b': 3, 'nb': 4,
+  'kalpana': 10, 'ratan': 14, 'bhagat': 14,
+  'homi': 5, 'vikram': 6, 'gargi': 5, 'kalam': 6
+};
+
+// ===== RENDER SUMMARY TABLE =====
+function renderSummary() {
+  const tbody = document.getElementById('summary-tbody');
+  tbody.innerHTML = summaryRows.map(r => {
+    const cc = r.status === 'clean' ? 'green' : r.status === 'fair' ? 'warn' : 'danger';
+    const condColor = r.condition >= 85 ? 'var(--green)' : r.condition >= 70 ? 'var(--warn)' : 'var(--danger)';
+    const stars = Math.round(r.rating);
+    const starStr = '★'.repeat(stars) + '☆'.repeat(5 - stars);
+    return `
+      <tr>
+        <td><span class="mono" style="font-size:12px">${r.loc}</span></td>
+        <td><span class="mono" style="color:var(--text)">${r.lastTime}</span></td>
+        <td>
+          <div class="staff-info">
+            <div class="avatar-sm" style="background:linear-gradient(135deg,var(--accent),var(--info));width:22px;height:22px;font-size:9px">${r.lastBy.split(' ').map(w=>w[0]).join('')}</div>
+            ${r.lastBy}
+          </div>
+        </td>
+        <td>
+          <div class="condition-bar">
+            <div class="bar-track"><div class="bar-fill" style="width:${r.condition}%;background:${condColor}"></div></div>
+            <span class="mono" style="font-size:11px;color:${condColor}">${r.condition}%</span>
+          </div>
+        </td>
+        <td><span style="color:var(--warn);font-size:13px">${starStr}</span> <span class="mono" style="font-size:11px;color:var(--muted)">${r.rating}</span></td>
+        <td><span class="pill ${cc}">${r.status.toUpperCase()}</span></td>
+      </tr>`;
+  }).join('');
+}
+
+// ===== RENDER STAFF TABLE =====
+function renderStaffTable() {
+  const tbody = document.getElementById('staff-tbody');
+  tbody.innerHTML = staff.map(s => {
+    const cColor = s.condition >= 90 ? 'var(--green)' : s.condition >= 80 ? 'var(--warn)' : 'var(--danger)';
+    const sPill = s.status === 'active' ? 'green' : 'warn';
+    const sLabel = s.status === 'active' ? 'Active' : 'On Break';
+    return `
+      <tr>
+        <td>
+          <div class="staff-info">
+            <div class="avatar-sm" style="background:${s.color}">${s.initials}</div>
+            <div>
+              <div class="staff-name">${s.name}</div>
+              <div class="staff-role">Cleaning Staff</div>
+            </div>
+          </div>
+        </td>
+        <td><span class="clean-count-badge">🧼 ${s.cleans}</span></td>
+        <td><span class="mono" style="color:var(--info)">${s.week}</span></td>
+        <td><span class="mono" style="color:var(--purple)">${s.month}</span></td>
+        <td><span class="mono" style="font-size:12px;color:var(--muted)">${s.lastCleaned}</span></td>
+        <td>
+          <div class="condition-bar">
+            <div class="bar-track"><div class="bar-fill" style="width:${s.condition}%;background:${cColor}"></div></div>
+            <span class="mono" style="font-size:11px;color:${cColor}">${s.condition}%</span>
+          </div>
+        </td>
+        <td><span class="pill ${sPill}">${sLabel}</span></td>
+      </tr>`;
+  }).join('');
+}
+
+// ===== RENDER STAFF HISTORY =====
+function renderStaffHistory() {
+  const list = document.getElementById('staff-history-list');
+  const historyItems = [
+    { time:'14:28', staff:'Priya M.',  loc:'Gateway A — F1 WR01',        cond:94 },
+    { time:'14:02', staff:'Arjun T.', loc:'Kalpana Chawla — F7 WR01',   cond:88 },
+    { time:'13:40', staff:'Meena R.',  loc:'Gateway B — F2 WR01',         cond:91 },
+    { time:'13:22', staff:'Karan V.', loc:'Homi Bhabha — F4 WR02',      cond:87 },
+    { time:'13:10', staff:'Sunita D.', loc:'Bhagat Singh — F10 WR01',    cond:85 },
+    { time:'12:55', staff:'Raju S.',   loc:'NB Block — F3 WR02',          cond:90 },
+    { time:'12:30', staff:'Anita Y.',  loc:'Ratan Tata — F8 WR01',        cond:83 },
+    { time:'12:18', staff:'Deepak N.', loc:'Vikram Sarabhai — F5 WR01',  cond:89 },
+    { time:'12:00', staff:'Raju S.',   loc:'Abdul Kalam — F4 WR02',       cond:85 },
+    { time:'11:45', staff:'Arjun T.', loc:'Kalpana Chawla — F10 WR01',  cond:84 },
+    { time:'11:30', staff:'Anita Y.',  loc:'Gateway B — F3 WR01',         cond:79 },
+    { time:'11:10', staff:'Deepak N.', loc:'Gateway B — F3 WR02',         cond:72 },
+  ];
+  list.innerHTML = historyItems.map(h => {
+    const cColor = h.cond >= 90 ? 'var(--green)' : h.cond >= 80 ? 'var(--warn)' : 'var(--danger)';
+    return `
+      <div class="timeline-item">
+        <div class="timeline-dot" style="background:${cColor}"></div>
+        <div class="timeline-content">
+          <div class="timeline-text"><strong>${h.staff}</strong> cleaned <strong>${h.loc}</strong></div>
+          <div class="timeline-time">${h.time} · Condition after: <span style="color:${cColor}">${h.cond}%</span></div>
+        </div>
+        <span class="pill ${h.cond>=90?'green':h.cond>=80?'warn':'danger'}" style="flex-shrink:0">${h.cond}%</span>
+      </div>`;
+  }).join('');
+}
+
+// ===== RENDER TASKS =====
+function renderTasks(filter = 'all') {
+  const list = document.getElementById('tasks-list');
+  const filtered = filter === 'all' ? allTasks : allTasks.filter(t => t.status === filter);
+  list.innerHTML = filtered.map(t => {
+    const done = t.status === 'done';
+    const pClass = t.priority === 'urgent' ? 'danger' : t.priority === 'high' ? 'warn' : 'muted';
+    return `
+      <div class="task-item ${done ? 'done' : ''}" onclick="toggleTask(this)">
+        <div class="task-check">${done ? '✓' : ''}</div>
+        <div style="flex:1">
+          <div class="task-text" style="text-decoration:${done?'line-through':'none'};color:${done?'var(--muted)':'var(--text)'}">
+            ${t.loc} — ${t.type}
+          </div>
+          <div style="font-size:11px;color:var(--muted);font-family:var(--font-mono);margin-top:2px">${t.staff}</div>
+        </div>
+        <span class="pill ${pClass}">${t.priority === 'urgent' ? 'URGENT' : t.time}</span>
+      </div>`;
+  }).join('');
+}
+
+// ===== RENDER ISSUES =====
+function renderIssues() {
+  const cont = document.getElementById('issues-container');
+  cont.innerHTML = issues.map(i => {
+    const sLabel = i.status === 'open' ? 'Open' : i.status === 'progress' ? 'In Progress' : 'Resolved';
+    const sClass = i.status === 'open' ? 'danger' : i.status === 'progress' ? 'warn' : 'green';
+    return `
+      <div class="issue-item">
+        <div class="issue-dot ${i.severity}"></div>
+        <div style="flex:1">
+          <div class="issue-title">${i.title}</div>
+          <div class="issue-meta">${i.loc} · ${i.source} · ${i.time} · Assigned: ${i.assigned}</div>
+        </div>
+        <div class="issue-actions">
+          <span class="pill ${sClass}">${sLabel}</span>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+// ===== RENDER CLEANING LOG =====
+function renderCleaningLog(filter = 'all') {
+  const tbody = document.getElementById('cleaning-log-tbody');
+  const filtered = filter === 'all' ? cleaningLog : 
+    filter === 'hostels' ? cleaningLog.filter(c => ['kalpana','ratan','bhagat','homi','vikram','gargi','kalam'].includes(c.bKey)) :
+    cleaningLog.filter(c => c.bKey === filter);
+  tbody.innerHTML = filtered.map(c => {
+    const condColor = c.condition >= 85 ? 'var(--green)' : c.condition >= 70 ? 'var(--warn)' : 'var(--danger)';
+    return `
+      <tr>
+        <td><span class="mono" style="font-size:12px">${c.loc}</span></td>
+        <td><span class="mono" style="color:var(--muted)">${c.lastTime}</span></td>
+        <td>
+          <div class="staff-info">
+            <div class="avatar-sm" style="background:linear-gradient(135deg,var(--accent),var(--purple));width:22px;height:22px;font-size:9px">${c.lastBy.split(' ').map(w=>w[0]).join('')}</div>
+            ${c.lastBy}
+          </div>
+        </td>
+        <td><span class="clean-count-badge">🧼 ${c.today}</span></td>
+        <td><span class="mono" style="color:var(--info)">${c.week}</span></td>
+        <td><span class="mono" style="color:var(--purple)">${c.month}</span></td>
+        <td>
+          <div class="condition-bar">
+            <div class="bar-track"><div class="bar-fill" style="width:${c.condition}%;background:${condColor}"></div></div>
+            <span class="mono" style="font-size:11px;color:${condColor}">${c.condition}%</span>
+          </div>
+        </td>
+      </tr>`;
+  }).join('');
+}
+
+// ===== RENDER WASHROOMS =====
+function renderWashrooms(filter = 'all') {
+  const cont = document.getElementById('washroom-container');
+  const filtered = filter === 'all' ? washrooms : washrooms.filter(w => w.bKey === filter);
+
+  // Group by building then floor
+  const groups = {};
+  filtered.forEach(w => {
+    const key = w.building + ' — ' + w.floor;
+    if (!groups[key]) groups[key] = [];
+    groups[key].push(w);
+  });
+
+  cont.innerHTML = Object.entries(groups).map(([groupKey, wrs]) => {
+    const cards = wrs.map(w => {
+      const condColor = w.condition >= 85 ? 'var(--green)' : w.condition >= 70 ? 'var(--warn)' : 'var(--danger)';
+      const stars = Math.round(w.rating);
+      const starStr = '★'.repeat(stars) + '☆'.repeat(5 - stars);
+      return `
+        <div class="wr-card ${w.condClass}">
+          <div class="wr-top">
+            <div>
+              <div class="wr-id">${w.id}</div>
+              <div class="wr-type">${w.type}</div>
+            </div>
+            <span class="pill ${w.condClass==='clean'?'green':w.condClass==='fair'?'warn':'danger'}">${w.condClass.toUpperCase()}</span>
+          </div>
+          <div class="wr-stats">
+            <div class="wr-stat">
+              <div class="wr-stat-label">Footfall</div>
+              <div class="wr-stat-value" style="color:var(--info)">${w.footfall}</div>
+            </div>
+            <div class="wr-stat">
+              <div class="wr-stat-label">Cleaned</div>
+              <div class="wr-stat-value" style="color:var(--accent)">${w.cleaned}×</div>
+            </div>
+            <div class="wr-stat" style="grid-column:span 2">
+              <div class="wr-stat-label">Condition</div>
+              <div style="display:flex;align-items:center;gap:8px;margin-top:4px">
+                <div class="bar-track" style="flex:1;min-width:auto"><div class="bar-fill" style="width:${w.condition}%;background:${condColor}"></div></div>
+                <span class="mono" style="font-size:12px;color:${condColor}">${w.condition}%</span>
+              </div>
+            </div>
+          </div>
+          <div class="wr-last">
+            <div class="wr-last-info">Last: <strong>${w.lastTime}</strong> · <strong>${w.lastBy}</strong></div>
+            <div style="color:var(--warn);font-size:11px" title="${w.rating}/5">${starStr}</div>
+          </div>
+        </div>`;
+    }).join('');
+    return `
+      <div class="floor-section">
+        <div class="floor-header">
+          <span class="floor-label">📍 ${groupKey}</span>
+          <span class="pill muted">${wrs.length} washrooms</span>
+        </div>
+        <div class="washroom-grid">${cards}</div>
+      </div>`;
+  }).join('');
+}
+
+// ===== INTERACTIONS =====
+function switchTab(tab, el) {
+  document.querySelectorAll('.tab-view').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  if (el) el.classList.add('active');
+  const titles = {
+    dashboard:'Dashboard Overview', buildings:'Buildings & Floors',
+    washrooms:'Washroom Status', footfall:'Footfall & Usage',
+    cleaning:'Cleaning Logs', staff:'Staff Performance',
+    tasks:'Tasks Assigned', report:'Report an Issue'
+  };
+  document.getElementById('page-title').textContent = titles[tab] || tab;
+}
+
+function filterWashrooms(f, el) {
+  document.querySelectorAll('.building-tab').forEach(t => t.classList.remove('active'));
+  if (el) el.classList.add('active');
+  renderWashrooms(f);
+}
+
+function filterTasks(f, el) {
+  document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+  if (el) el.classList.add('active');
+  renderTasks(f);
+}
+
+function filterCleanLog(f, el) {
+  document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+  if (el) el.classList.add('active');
+  renderCleaningLog(f);
+}
+
+function toggleTask(el) {
+  el.classList.toggle('done');
+  const check = el.querySelector('.task-check');
+  if (el.classList.contains('done')) { check.textContent = '✓'; } else { check.textContent = ''; }
+}
+
+function selectBuilding(el, key) {
+  document.querySelectorAll('.building-stat-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  showToast('Selected: ' + el.querySelector('.bsc-name').textContent);
+}
+
+function setPeriod(p, el) {
+  document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+  if (el) el.classList.add('active');
+  const vals = { day: { total:'612', cleans:'34', weekly:'218', monthly:'874' }, week: { total:'3840', cleans:'218', weekly:'218', monthly:'874' }, month: { total:'15200', cleans:'874', weekly:'218', monthly:'874' } };
+  const v = vals[p];
+  const ftEl = document.getElementById('ff-total');
+  if (ftEl) ftEl.textContent = v.total;
+  showToast('Period switched to: ' + p.charAt(0).toUpperCase() + p.slice(1));
+}
+
+function openReportModal() {
+  document.getElementById('report-modal').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('report-modal').classList.remove('open');
+}
+
+function submitReport() {
+  const bldg = document.getElementById('report-building').value;
+  const type = document.getElementById('report-type').value;
+  showToast('Report submitted: "' + type + '" at ' + bldg);
+}
+
+function submitModalReport() {
+  showToast('Report submitted successfully! Supervisor notified.');
+  closeModal();
+}
+
+let selectedRating = 0;
+
+function selectRating(r) {
+  selectedRating = r;
+  document.querySelectorAll('#rating-stars .rate-btn').forEach((btn, i) => {
+    btn.classList.toggle('selected', i < r);
+  });
+}
+
+function selectRating2(r, el) {
+  el.parentElement.querySelectorAll('.rate-btn').forEach((btn, i) => {
+    btn.classList.toggle('selected', i < r);
+  });
+}
+
+function updateReportFloors() {
+  const sel = document.getElementById('report-building');
+  const floorSel = document.getElementById('report-floor');
+  const key = sel.value;
+  const floors = buildingFloors[key] || 1;
+  floorSel.innerHTML = Array.from({length: floors}, (_, i) =>
+    `<option>Floor ${i + 1}</option>`
+  ).join('');
+}
+
+function showToast(msg) {
+  const toast = document.getElementById('toast');
+  document.getElementById('toast-msg').textContent = msg;
+  toast.style.transform = 'translateX(-50%) translateY(0)';
+  toast.style.opacity = '1';
+  setTimeout(() => {
+    toast.style.transform = 'translateX(-50%) translateY(80px)';
+    toast.style.opacity = '0';
+  }, 3000);
+}
+
+// Close modal on overlay click
+document.getElementById('report-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+
+// Animate bars
+function animateBars() {
+  const fills = document.querySelectorAll('.bar-fill, .footfall-bar-fill');
+  fills.forEach(f => {
+    const target = f.style.width;
+    f.style.width = '0';
+    requestAnimationFrame(() => { setTimeout(() => { f.style.width = target; }, 60); });
+  });
+}
+
+// Live clock
+setInterval(() => {
+  const now = new Date();
+  const t = now.toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit' });
+  const el = document.querySelector('.live-badge');
+  if (el) el.innerHTML = `<div class="pulse"></div>LIVE · ${t}`;
+}, 5000);
+
+// ===== INIT =====
+renderSummary();
+renderStaffTable();
+renderStaffHistory();
+renderTasks();
+renderIssues();
+renderCleaningLog();
+renderWashrooms();
+updateReportFloors();
+setTimeout(animateBars, 150);
+</script>
 </body>
 </html>

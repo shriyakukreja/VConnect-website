@@ -1,3 +1,24 @@
+/* ================== VCONNECT APP ================== */
+// ===== WASHROOM HANDLING =====
+
+// Simulate QR (for now)
+if (!localStorage.getItem("washroomId")) {
+    localStorage.setItem("washroomId", "WR01");
+}
+
+// Later when QR is used
+const params = new URLSearchParams(window.location.search);
+const wr = params.get("wr");
+
+if (wr) {
+    localStorage.setItem("washroomId", wr);
+}
+//Get current washroom
+const currentWashroom = 
+localStorage.getItem("WashroomID") || "WR01";
+
+console.log("Current Washroom:", currentWashroom);
+
 class VConnectApp {
 
     openModal(type) {
@@ -6,7 +27,6 @@ class VConnectApp {
 
         let content = "";
 
-        // FEEDBACK
         if (type === "feedback") {
             content = `
                 <h3>Submit Feedback</h3>
@@ -23,7 +43,6 @@ class VConnectApp {
             `;
         }
 
-        // REQUEST CLEANING
         if (type === "request") {
             content = `
                 <h3>Request Cleaning</h3>
@@ -43,7 +62,6 @@ class VConnectApp {
             `;
         }
 
-        // REPORT STATUS
         if (type === "status") {
             content = `
                 <h3>Report Cleanliness Status</h3>
@@ -58,7 +76,6 @@ class VConnectApp {
             `;
         }
 
-        // FACILITY ISSUE
         if (type === "facility") {
             content = `
                 <h3>Report Facility Issue</h3>
@@ -88,24 +105,41 @@ class VConnectApp {
         document.getElementById("modal").classList.add("hidden");
     }
 
+    showPopup(message) {
+        const popup = document.getElementById("actionPopup");
+        const popupMsg = document.getElementById("popupMessage");
+
+        if (!popup || !popupMsg) return;
+
+        popupMsg.innerText = message;
+        popup.classList.add("show");
+        popup.classList.remove("hidden");
+
+        setTimeout(() => {
+            popup.classList.remove("show");
+            popup.classList.add("hidden");
+        }, 3000);
+    }
+
     submitReport(type) {
-        const successMsg = document.getElementById("successMessage");
-        successMsg.innerText = `Your ${type} report has been submitted successfully!`;
-        successMsg.classList.remove("hidden");
-        setTimeout(() => successMsg.classList.add("hidden"), 3000);
+        let msg = "";
+
+        if (type === "feedback") msg = "Thank you for your feedback!";
+        else if (type === "request") msg = "Report sent to the nearest cleaner!";
+        else if (type === "status") msg = "Status updated successfully!";
+        else if (type === "facility") msg = "Facility issue reported successfully!";
+
+        this.showPopup(msg);
         this.closeModal();
     }
 }
 
 const app = new VConnectApp();
 
-window.openModal = function(type) {
-    app.openModal(type);
-};
+/* ================== GLOBAL FUNCTIONS ================== */
 
-window.closeModal = function() {
-    app.closeModal();
-};
+window.openModal = (type) => app.openModal(type);
+window.closeModal = () => app.closeModal();
 
 window.selectOption = function(button) {
     const buttons = button.parentElement.querySelectorAll("button");
@@ -120,67 +154,56 @@ window.toggleOtherBox = function() {
     }
 };
 
-/*login*/
-// ROLE SWITCHER FUNCTIONALITY
-/* ============== LOGIN FUNCTIONALITY ============== */
-document.addEventListener("DOMContentLoaded", () => {
-    const loginForm = document.getElementById("loginForm");
-    const roleButtons = document.querySelectorAll(".role-btn");
-    let selectedRole = "User"; // default role
+/* ================== LOGIN FUNCTIONALITY ================== */
 
-    // Role switcher
-    roleButtons.forEach(btn => {
-        btn.addEventListener("click", () => {
-            roleButtons.forEach(b => b.classList.remove("active"));
-            btn.classList.add("active");
-            selectedRole = btn.dataset.role;
-            document.getElementById("submitBtn").innerText = `Sign In as ${selectedRole}`;
-        });
+/* ============== LOGIN FUNCTIONALITY (FIXED) ============== */
+
+let selectedRole = "User";
+
+// Role buttons
+const roleButtons = document.querySelectorAll(".role-btn");
+const submitBtn = document.getElementById("submitBtn");
+
+roleButtons.forEach(btn => {
+    btn.addEventListener("click", () => {
+        roleButtons.forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+
+        selectedRole = btn.getAttribute("data-role");
+        submitBtn.innerText = `Sign In as ${selectedRole}`;
     });
+});
 
-    // Login form submission
-    loginForm.addEventListener("submit", (e) => {
-        e.preventDefault(); // prevent actual form submission
+// Form submit
+const loginForm = document.getElementById("loginForm");
 
-        // Get email and password values (no validation)
-        const email = loginForm.querySelector("input[type='email']").value;
+if (loginForm) {
+    loginForm.addEventListener("submit", function(e) {
+        e.preventDefault();
+
+        // Get values (FIXED SELECTORS)
+        const email = loginForm.querySelector("input[type='text']").value;
         const password = loginForm.querySelector("input[type='password']").value;
 
-        // Save role and email in localStorage
+        console.log("LOGIN CLICKED"); // debug
+        console.log(selectedRole, email);
+
+        // Save data
         localStorage.setItem("vconnectRole", selectedRole);
         localStorage.setItem("vconnectEmail", email);
 
-        // For now, just log and show alert
-        console.log(`Logged in as ${selectedRole} with email: ${email}`);
-        alert(`Logged in as ${selectedRole}!`);
-
-        // You can redirect later when dashboard pages are ready
-        // Example: window.location.href = `${selectedRole.toLowerCase()}-dashboard.html`;
+        // 🚀 REDIRECT (MAIN FIX)
+        if (selectedRole === "Supervisor") {
+            window.location.href = "supervisor-dashboard.html";
+        } 
+        else if (selectedRole === "Cleaner") {
+            window.location.href = "cleaner-dashboard.html";
+        } 
+        else if (selectedRole === "User") {
+            window.location.href = "dashboard.html";
+        }
+        else {
+            window.location.href = "index.html";
+        }
     });
-});
-// Existing VConnectApp code remains the same
-
-VConnectApp.prototype.showPopup = function(message) {
-    const popup = document.getElementById("actionPopup");
-    const popupMsg = document.getElementById("popupMessage");
-    popupMsg.innerText = message;
-    popup.classList.add("show");
-    popup.classList.remove("hidden");
-
-    setTimeout(() => {
-        popup.classList.remove("show");
-        popup.classList.add("hidden");
-    }, 3000); // popup shows for 3 seconds
-};
-
-// Updated submitReport
-VConnectApp.prototype.submitReport = function(type) {
-    let msg = "";
-    if(type === "feedback") msg = "Thank you for your feedback!";
-    else if(type === "request") msg = "Report sent to the nearest cleaner!";
-    else if(type === "status") msg = "Status updated successfully!";
-    else if(type === "facility") msg = "Facility issue reported successfully!";
-
-    this.showPopup(msg);
-    this.closeModal();
-};
+}

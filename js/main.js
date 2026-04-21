@@ -1,24 +1,175 @@
-/* ================== VCONNECT APP ================== */
-// ===== WASHROOM HANDLING =====
+/* ================== GLOBAL STATE ================== */
+const role = localStorage.getItem("role");
+const isLoggedIn = localStorage.getItem("isLoggedIn");
 
-// Simulate QR (for now)
+/* ================== PAGE CONTROL (SAFE) ================== */
+document.addEventListener("DOMContentLoaded", () => {
+
+    const currentPage = window.location.pathname;
+
+    // ❌ DO NOT TOUCH HOME PAGE (guest page stays clean)
+    if (currentPage.includes("index.html") || currentPage === "/") return;
+
+    if (isLoggedIn !== "true") return;
+
+    // SAFE PAGE CONTROL (NO REDIRECT LOOPS)
+    if (!role || isLoggedIn !== "true") return;
+
+    // Only block clearly wrong access (no forced redirects)
+    if (currentPage.includes("staff-dashboard.html") && role !== "Cleaner") return;
+
+    if (currentPage.includes("supervisor-dashboard.html") && role !== "Supervisor") return;
+
+    if (currentPage.includes("dashboard.html") && role !== "User") return;
+
+   
+});
+
+
+/* ================== LOGIN ================== */
+document.addEventListener("DOMContentLoaded", () => {
+
+    let selectedRole = "User";
+
+    const roleButtons = document.querySelectorAll(".role-btn");
+    const loginForm = document.getElementById("loginForm");
+    const submitBtn = document.getElementById("submitBtn");
+
+    // ROLE SWITCH
+    roleButtons.forEach(btn => {
+        btn.addEventListener("click", () => {
+            roleButtons.forEach(b => b.classList.remove("active"));
+            btn.classList.add("active");
+
+            selectedRole = btn.dataset.role;
+
+            if (submitBtn) {
+                submitBtn.innerText = `Sign In as ${selectedRole}`;
+            }
+        });
+    });
+
+    // LOGIN SUBMIT
+    if (loginForm) {
+        loginForm.addEventListener("submit", (e) => {
+            e.preventDefault();
+
+            const name = document.getElementById("emailinput").value;
+
+            localStorage.setItem("isLoggedIn", "true");
+            localStorage.setItem("role", selectedRole);
+            localStorage.setItem("vconnectUserName", name);
+
+            alert(`Logged in as ${selectedRole}`);
+
+            window.location.href = "index.html";
+        });
+    }
+
+});
+
+
+/* ================== DASHBOARD NAVIGATION ================== */
+document.addEventListener("DOMContentLoaded", () => {
+
+    const dashboardLinks = document.querySelectorAll('a[href="dashboard.html"]');
+
+    dashboardLinks.forEach(link => {
+        link.addEventListener("click", function(e) {
+            e.preventDefault();
+
+            const role = localStorage.getItem("role");
+
+            if (role === "Cleaner") {
+                window.location.href = "staff-dashboard.html";
+            } 
+            else if (role === "Supervisor") {
+                window.location.href = "supervisor-dashboard.html";
+            } 
+            else {
+                window.location.href = "dashboard.html";
+            }
+        });
+    });
+
+});
+
+
+/* ================== NAVBAR CONTROL ================== */
+document.addEventListener("DOMContentLoaded", () => {
+
+    const navName = document.getElementById("navUserName");
+    const loginLink = document.getElementById("loginLink");
+
+    const storedName = localStorage.getItem("vconnectUserName");
+    const isLoggedIn = localStorage.getItem("isLoggedIn");
+
+    if (isLoggedIn === "true" && storedName) {
+
+        if (navName) {
+            navName.innerText = "Hi, " + storedName.split("@")[0];
+        }
+
+        if (loginLink) {
+            loginLink.innerText = "Logout";
+
+            loginLink.addEventListener("click", () => {
+                if (confirm("Are you sure you want to logout?")) {
+                    localStorage.clear();
+                    window.location.href = "index.html";
+                }
+            });
+        }
+
+        // Hide guest-only links
+        const how = document.getElementById("howLink");
+        const feature = document.getElementById("featureLink");
+
+        if (how) how.style.display = "none";
+        if (feature) feature.style.display = "none";
+
+    } else {
+        if (navName) navName.innerText = "";
+        if (loginLink) loginLink.innerText = "Login";
+    }
+
+});
+
+
+/* ================== DASHBOARD USER NAME ================== */
+document.addEventListener("DOMContentLoaded", () => {
+
+    const nameEl = document.getElementById("dashboardUserName");
+    const name = localStorage.getItem("vconnectUserName");
+    const isLoggedIn = localStorage.getItem("isLoggedIn");
+
+    if (!nameEl) return;
+
+    if (isLoggedIn === "true" && name) {
+        nameEl.innerText = name.split("@")[0];
+    } else {
+        nameEl.innerText = "Campus User";
+    }
+
+});
+
+
+/* ================== WASHROOM (QR SIMULATION) ================== */
 if (!localStorage.getItem("washroomId")) {
     localStorage.setItem("washroomId", "WR01");
 }
 
-// Later when QR is used
 const params = new URLSearchParams(window.location.search);
 const wr = params.get("wr");
 
 if (wr) {
     localStorage.setItem("washroomId", wr);
 }
-//Get current washroom
-const currentWashroom = 
-localStorage.getItem("WashroomID") || "WR01";
 
-console.log("Current Washroom:", currentWashroom);
+const currentWashroom = localStorage.getItem("washroomId") || "WR01";
 
+
+/* ================== VCONNECT APP ================== */
 class VConnectApp {
 
     openModal(type) {
@@ -27,73 +178,14 @@ class VConnectApp {
 
         let content = "";
 
-        if (type === "feedback") {
-            content = `
-                <h3>Submit Feedback</h3>
-                <p>Help us improve the washroom facilities</p>
-
-                <div class="option-group">
-                    <p>How was the cleanliness?</p>
-                    <button onclick="selectOption(this)">Good</button>
-                    <button onclick="selectOption(this)">Bad</button>
-                </div>
-
-                <textarea placeholder="Write your suggestions..."></textarea>
-                <button class="submit-btn" onclick="app.submitReport('feedback')">Submit Feedback</button>
-            `;
-        }
-
         if (type === "request") {
             content = `
                 <h3>Request Cleaning</h3>
-                <p>Notify staff about urgent cleaning needs</p>
-
                 <div class="option-group">
-                    <button onclick="selectOption(this)">Water/Liquid Spill</button>
                     <button onclick="selectOption(this)">Very Dirty</button>
-                    <button onclick="selectOption(this)">Unusable</button>
                     <button onclick="selectOption(this)">Bad Odor</button>
-                    <button onclick="toggleOtherBox()">Other</button>
                 </div>
-
-                <textarea id="otherBox" placeholder="Describe other issue..." style="display:none;"></textarea>
-
-                <button class="submit-btn" onclick="app.submitReport('request')">Send Request</button>
-            `;
-        }
-
-        if (type === "status") {
-            content = `
-                <h3>Report Cleanliness Status</h3>
-                <p>Help us track the current state of the facility</p>
-
-                <div class="option-group">
-                    <button onclick="selectOption(this)">Clean</button>
-                    <button onclick="selectOption(this)">Unclean</button>
-                </div>
-
-                <button class="submit-btn" onclick="app.submitReport('status')">Submit Status</button>
-            `;
-        }
-
-        if (type === "facility") {
-            content = `
-                <h3>Report Facility Issue</h3>
-                <p>Let us know if something is missing or broken</p>
-
-                <div class="option-group">
-                    <button onclick="selectOption(this)">No Soap</button>
-                    <button onclick="selectOption(this)">No Tissue</button>
-                    <button onclick="selectOption(this)">Tap Broken</button>
-                    <button onclick="selectOption(this)">Light Broken</button>
-                    <button onclick="selectOption(this)">No Water</button>
-                    <button onclick="selectOption(this)">Door Broken</button>
-                    <button onclick="toggleOtherBox()">Other</button>
-                </div>
-
-                <textarea id="otherBox" placeholder="Describe other issue..." style="display:none;"></textarea>
-
-                <button class="submit-btn" onclick="app.submitReport('facility')">Report Issue</button>
+                <button onclick="app.submitReport('request')">Send</button>
             `;
         }
 
@@ -105,105 +197,31 @@ class VConnectApp {
         document.getElementById("modal").classList.add("hidden");
     }
 
-    showPopup(message) {
-        const popup = document.getElementById("actionPopup");
-        const popupMsg = document.getElementById("popupMessage");
-
-        if (!popup || !popupMsg) return;
-
-        popupMsg.innerText = message;
-        popup.classList.add("show");
-        popup.classList.remove("hidden");
-
-        setTimeout(() => {
-            popup.classList.remove("show");
-            popup.classList.add("hidden");
-        }, 3000);
-    }
-
     submitReport(type) {
-        let msg = "";
+        const selected = document.querySelector(".selected");
 
-        if (type === "feedback") msg = "Thank you for your feedback!";
-        else if (type === "request") msg = "Report sent to the nearest cleaner!";
-        else if (type === "status") msg = "Status updated successfully!";
-        else if (type === "facility") msg = "Facility issue reported successfully!";
+        const newReport = {
+            issue: selected ? selected.innerText : type,
+            washroom: currentWashroom,
+            time: new Date().toLocaleTimeString(),
+            status: "pending"
+        };
 
-        this.showPopup(msg);
+        let reports = JSON.parse(localStorage.getItem("reports")) || [];
+        reports.push(newReport);
+        localStorage.setItem("reports", JSON.stringify(reports));
+
+        alert("Report sent!");
         this.closeModal();
     }
 }
 
 const app = new VConnectApp();
 
-/* ================== GLOBAL FUNCTIONS ================== */
-
 window.openModal = (type) => app.openModal(type);
 window.closeModal = () => app.closeModal();
 
-window.selectOption = function(button) {
-    const buttons = button.parentElement.querySelectorAll("button");
-    buttons.forEach(btn => btn.classList.remove("selected"));
-    button.classList.add("selected");
+window.selectOption = function(btn) {
+    btn.parentElement.querySelectorAll("button").forEach(b => b.classList.remove("selected"));
+    btn.classList.add("selected");
 };
-
-window.toggleOtherBox = function() {
-    const box = document.getElementById("otherBox");
-    if (box) {
-        box.style.display = box.style.display === "none" ? "block" : "none";
-    }
-};
-
-/* ================== LOGIN FUNCTIONALITY ================== */
-
-/* ============== LOGIN FUNCTIONALITY (FIXED) ============== */
-
-let selectedRole = "User";
-
-// Role buttons
-const roleButtons = document.querySelectorAll(".role-btn");
-const submitBtn = document.getElementById("submitBtn");
-
-roleButtons.forEach(btn => {
-    btn.addEventListener("click", () => {
-        roleButtons.forEach(b => b.classList.remove("active"));
-        btn.classList.add("active");
-
-        selectedRole = btn.getAttribute("data-role");
-        submitBtn.innerText = `Sign In as ${selectedRole}`;
-    });
-});
-
-// Form submit
-const loginForm = document.getElementById("loginForm");
-
-if (loginForm) {
-    loginForm.addEventListener("submit", function(e) {
-        e.preventDefault();
-
-        // Get values (FIXED SELECTORS)
-        const email = loginForm.querySelector("input[type='text']").value;
-        const password = loginForm.querySelector("input[type='password']").value;
-
-        console.log("LOGIN CLICKED"); // debug
-        console.log(selectedRole, email);
-
-        // Save data
-        localStorage.setItem("vconnectRole", selectedRole);
-        localStorage.setItem("vconnectEmail", email);
-
-        // 🚀 REDIRECT (MAIN FIX)
-        if (selectedRole === "Supervisor") {
-            window.location.href = "supervisor-dashboard.html";
-        } 
-        else if (selectedRole === "Cleaner") {
-            window.location.href = "cleaner-dashboard.html";
-        } 
-        else if (selectedRole === "User") {
-            window.location.href = "dashboard.html";
-        }
-        else {
-            window.location.href = "index.html";
-        }
-    });
-}

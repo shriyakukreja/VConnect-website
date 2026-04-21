@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Redirecting...</title>
+</head>
+<body>
+
+<script>
+const role = localStorage.getItem("role");
+
+if (role === "Cleaner") {
+    window.location.href = "staff-dashboard.html";
+} 
+else if (role === "Supervisor") {
+    window.location.href = "supervisor-dashboard.html";
+} 
+else {
+    window.location.href = "dashboard.html";
+}
+</script>
+
+</body>
+</html>

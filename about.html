@@ -14,11 +14,13 @@
     <div class="logo">VConnect</div>
     <ul class="nav-links">
         <li><a href="index.html">Home</a></li>
-        <li><a href="dashboard.html">Dashboard</a></li>
-        <li><a href="how-it-works.html">How It Works</a></li>
-        <li><a href="features.html">Features</a></li>
-        <li><a href="about.html" class="active">About</a></li>
-        <li><a href="login.html" class="login-btn">Login</a></li>
+        <li><a href="redirect-dashboard.html">Dashboard</a></li>
+        <li><a id="howLink" href="how-it-works.html">How It Works</a></li>
+        <li><a id="featureLink" href="features.html">Explore</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a id="loginLink" href="login.html">Login</a></li>
+        <li><span id="navUserName"></span></li>
+            
     </ul>
 </nav>
 
@@ -169,3 +171,4 @@ function closeContactModal(){
     contactModal.classList.add('hidden');
 }
 </script>
+<script src="js/main.js"></script>

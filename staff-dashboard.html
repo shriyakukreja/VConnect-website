@@ -717,8 +717,8 @@
     <div class="staff-card">
       <div class="avatar">PM</div>
       <div class="staff-info-footer">
-        <p>Priya Mehta</p>
-        <span>Senior Cleaner</span>
+        <p id="staffName">Staff</p>
+        <span>Cleaner</span>
       </div>
     </div>
   </div>
@@ -918,6 +918,7 @@
       <div class="section-header">
         <div>
           <div class="section-title">My Tasks</div>
+          <div id="taskContainer"></div>
           <div class="section-sub">Assigned washrooms for today</div>
         </div>
         <div class="filter-tabs">
@@ -1332,6 +1333,44 @@ setInterval(() => {
   const el = document.querySelector('.live-badge');
   if (el) el.innerHTML = `<div class="pulse"></div>LIVE · ${t}`;
 }, 5000);
+</script>
+<script src="js/main.js"></script>
+<script>
+
+function renderTasks() {
+    const container = document.getElementById("taskContainer");
+    if (!container) return;
+
+    const reports = JSON.parse(localStorage.getItem("reports")) || [];
+
+    if (reports.length === 0) {
+        container.innerHTML = "<p>No tasks yet</p>";
+        return;
+    }
+
+    container.innerHTML = reports.map((r, index) => `
+        <div style="padding:10px; border:1px solid #444; margin-bottom:10px;">
+            <strong>${r.issue}</strong><br>
+            <small>${r.washroom} • ${r.time}</small><br>
+            Status: ${r.status}<br>
+            <button onclick="completeTask(${index})">Mark Done</button>
+        </div>
+    `).join("");
+}
+
+function completeTask(index) {
+    let reports = JSON.parse(localStorage.getItem("reports")) || [];
+    reports[index].status = "done";
+    localStorage.setItem("reports", JSON.stringify(reports));
+    renderTasks();
+}
+
+// LOAD DATA
+document.addEventListener("DOMContentLoaded", renderTasks);
+
+// AUTO REFRESH (optional but good)
+setInterval(renderTasks, 2000);
+
 </script>
 </body>
 </html>

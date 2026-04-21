@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CleanOps — User Dashboard</title>
+<title>VConnect — User Dashboard</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -123,7 +123,6 @@
     margin-bottom: 2px;
     position: relative;
   }
-
   .nav-item:hover { background: var(--card); color: var(--text); }
   .nav-item.active { background: rgba(0,212,170,0.1); color: var(--accent); }
   .nav-item .icon { font-size: 15px; width: 18px; text-align: center; }
@@ -173,7 +172,7 @@
   .user-info span { font-size: 11px; color: var(--muted); }
 
   /* MAIN */
-  .main { flex: 1; display: flex; flex-direction: column; min-width: 0; overflow: hidden; }
+  .main { flex: 1; display: flex; flex-direction: column; min-width: 0; overflow: hidden; margin-top: 60px;}
 
   .topbar {
     background: var(--bg2);
@@ -932,16 +931,61 @@
     font-size: 28px;
     opacity: 0.12;
   }
+  .top-nav {
+   position: fixed;
+   top: 0;
+   left: 0;
+   width: 100%;
+   height: 60px;
+   background: #0b1220;
+   display: flex;
+   align-items: center;
+   justify-content: space-between;
+   padding: 0 28px;
+   z-index: 1000;
+   border-bottom: 1px solid rgba(255,255,255,0.08);}
+  
+  .nav-left {
+   font-weight: 700;
+   font-size: 18px;
+   color: white;
+  }
+
+  .nav-links {
+   display: flex;
+   gap: 18px;
+  }
+
+  .nav-links a {
+   color: #aaa;
+   text-decoration: none;
+   font-size: 14px;
+  }
+.nav-links a.active,
+  .nav-links a:hover {
+   color: #00d4aa;
+}
 </style>
 </head>
 <body>
+<nav class="top-nav">
+<div class="nav-left">VConnect</div>
+
+<div class="nav-links">
+  <a href="index.html">Home</a>
+  <a href="how-it-works.html">How It Works</a>
+  <a href="explore-features.html">Features</a>
+  <a href="about.html">About</a>
+  <a href="dashboard.html" class="active">Dashboard</a>
+</div>
+</nav>
 
 <!-- SIDEBAR -->
 <aside class="sidebar">
   <div class="logo">
     <div class="logo-mark">
       <div class="logo-icon">🧹</div>
-      <h1>CleanOps</h1>
+      <h1>VConnect</h1>
     </div>
     <p>User Dashboard</p>
   </div>
@@ -963,18 +1007,7 @@
     <div class="nav-item" onclick="switchTab('footfall', this)">
       <span class="icon">👣</span> Footfall & Usage
     </div>
-    <div class="nav-item" onclick="switchTab('cleaning', this)">
-      <span class="icon">🧼</span> Cleaning Logs
-    </div>
-
-    <div class="nav-label">Staff</div>
-    <div class="nav-item" onclick="switchTab('staff', this)">
-      <span class="icon">👥</span> Staff Performance
-    </div>
-    <div class="nav-item" onclick="switchTab('tasks', this)">
-      <span class="icon">📋</span> Tasks Assigned
-    </div>
-
+    
     <div class="nav-label">Actions</div>
     <div class="nav-item" onclick="switchTab('report', this)">
       <span class="icon">⚠</span> Report Issue
@@ -985,7 +1018,7 @@
   <div class="sidebar-footer">
     <div class="user-card">
       <div class="avatar">GU</div>
-      <div class="user-info">
+      <div class="user-info" id="dashboardUserName" >
         <p>Campus User</p>
         <span>Viewer Access</span>
       </div>
@@ -1050,12 +1083,6 @@
           <div class="stat-value">874</div>
           <div class="stat-sub">April 2025 total</div>
           <div class="stat-icon">🗓</div>
-        </div>
-        <div class="stat-card danger">
-          <div class="stat-label">Open Issues</div>
-          <div class="stat-value">7</div>
-          <div class="stat-sub">3 high priority</div>
-          <div class="stat-icon">⚠</div>
         </div>
       </div>
 
@@ -1543,116 +1570,6 @@
         </div>
       </div>
     </div>
-
-    <!-- ========== CLEANING LOGS TAB ========== -->
-    <div class="tab-view" id="tab-cleaning">
-      <div class="section-header">
-        <div>
-          <div class="section-title">Cleaning Logs</div>
-          <div class="section-sub">How many times cleaned — by day, week, and month — with staff and condition</div>
-        </div>
-        <div class="period-selector">
-          <button class="period-btn active" onclick="setPeriod('day', this)">Today</button>
-          <button class="period-btn" onclick="setPeriod('week', this)">This Week</button>
-          <button class="period-btn" onclick="setPeriod('month', this)">This Month</button>
-        </div>
-      </div>
-
-      <div class="stats-row" style="grid-template-columns:repeat(3,1fr)">
-        <div class="stat-card green">
-          <div class="stat-label">Cleaned Today</div>
-          <div class="stat-value">34</div>
-          <div class="stat-sub">Across all buildings</div>
-          <div class="stat-icon">🧼</div>
-        </div>
-        <div class="stat-card info">
-          <div class="stat-label">Cleaned This Week</div>
-          <div class="stat-value">218</div>
-          <div class="stat-sub">Mon–Tue (2 days)</div>
-          <div class="stat-icon">📅</div>
-        </div>
-        <div class="stat-card purple">
-          <div class="stat-label">Cleaned This Month</div>
-          <div class="stat-value">874</div>
-          <div class="stat-sub">April 2025 — 7 days</div>
-          <div class="stat-icon">🗓</div>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-header">
-          <div class="card-title">Detailed Cleaning Log</div>
-          <div class="filter-tabs">
-            <button class="filter-tab active" onclick="filterCleanLog('all', this)">All</button>
-            <button class="filter-tab" onclick="filterCleanLog('gateway-a', this)">Gateway A</button>
-            <button class="filter-tab" onclick="filterCleanLog('gateway-b', this)">Gateway B</button>
-            <button class="filter-tab" onclick="filterCleanLog('nb', this)">NB</button>
-            <button class="filter-tab" onclick="filterCleanLog('hostels', this)">Hostels</button>
-          </div>
-        </div>
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Location</th>
-                <th>Last Cleaned</th>
-                <th>Staff Member</th>
-                <th>Times Today</th>
-                <th>Times/Week</th>
-                <th>Times/Month</th>
-                <th>Condition After</th>
-              </tr>
-            </thead>
-            <tbody id="cleaning-log-tbody"></tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <!-- ========== STAFF TAB ========== -->
-    <div class="tab-view" id="tab-staff">
-      <div class="section-header">
-        <div>
-          <div class="section-title">Staff Performance</div>
-          <div class="section-sub">Cleaning counts, last cleaned, condition after clean per staff member</div>
-        </div>
-      </div>
-
-      <div class="card" style="margin-bottom:20px">
-        <div class="card-header">
-          <div class="card-title">Staff Overview</div>
-          <span class="pill green">8 active</span>
-        </div>
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Staff Member</th>
-                <th>Cleans Today</th>
-                <th>Cleans / Week</th>
-                <th>Cleans / Month</th>
-                <th>Last Cleaned</th>
-                <th>Avg Condition</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody id="staff-tbody"></tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- Per-staff cleaning history -->
-      <div class="section-header" style="margin-top:8px">
-        <div class="section-title" style="font-size:15px">Cleaning History by Staff</div>
-      </div>
-      <div class="card">
-        <div class="card-header">
-          <div class="card-title">Recent Cleans — All Staff</div>
-        </div>
-        <div class="scrollable" id="staff-history-list"></div>
-      </div>
-    </div>
-
     <!-- ========== TASKS TAB ========== -->
     <div class="tab-view" id="tab-tasks">
       <div class="section-header">
@@ -1679,14 +1596,7 @@
           <div class="section-title">Report an Issue</div>
           <div class="section-sub">Submit washroom issues — scanned via QR or reported manually</div>
         </div>
-        <span class="pill danger">7 open issues</span>
       </div>
-
-      <div class="grid-2">
-        <div class="card">
-          <div class="card-header"><div class="card-title">Open Reports</div></div>
-          <div id="issues-container"></div>
-        </div>
 
         <div class="card">
           <div class="card-header"><div class="card-title">Submit New Report</div></div>
@@ -2154,8 +2064,7 @@ function switchTab(tab, el) {
   const titles = {
     dashboard:'Dashboard Overview', buildings:'Buildings & Floors',
     washrooms:'Washroom Status', footfall:'Footfall & Usage',
-    cleaning:'Cleaning Logs', staff:'Staff Performance',
-    tasks:'Tasks Assigned', report:'Report an Issue'
+    report:'Report an Issue'
   };
   document.getElementById('page-title').textContent = titles[tab] || tab;
 }
@@ -2288,6 +2197,31 @@ renderCleaningLog();
 renderWashrooms();
 updateReportFloors();
 setTimeout(animateBars, 150);
+</script>
+<script src="js/main.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const userName = localStorage.getItem("vconnectUserName");
+    const isLoggedIn = localStorage.getItem("isLoggedIn");
+
+    const userBox = document.getElementById("dashboardUserName");
+
+    if (userBox && isLoggedIn === "true" && userName) {
+
+        // Extract clean name (before @ if email)
+        let cleanName = userName.includes("@") 
+            ? userName.split("@")[0] 
+            : userName;
+
+        // Capitalize first letter
+        cleanName = cleanName.charAt(0).toUpperCase() + cleanName.slice(1);
+
+        userBox.innerHTML = `
+            <p>${cleanName}</p>
+            <span>User Access</span>
+        `;
+    }
+});
 </script>
 </body>
 </html>

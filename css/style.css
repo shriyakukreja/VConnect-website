@@ -15,7 +15,7 @@ body {
     display: flex;
     justify-content: space-between;
     padding: 18px 40px;
-background: linear-gradient(90deg, #0077b6, #00b4d8);
+    background: linear-gradient(90deg, #0077b6, #00b4d8);
 }
 
 .logo {
@@ -27,7 +27,9 @@ background: linear-gradient(90deg, #0077b6, #00b4d8);
 .nav-links {
     list-style: none;
     display: flex;
-    gap: 25px;
+    gap: 25px;  
+    align-items: center;
+    margin-left: auto;   /* THIS pushes everything right */
 }
 
 .nav-links a {

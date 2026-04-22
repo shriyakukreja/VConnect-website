@@ -35,30 +35,37 @@ document.addEventListener("DOMContentLoaded", () => {
     const loginForm = document.getElementById("loginForm");
     const submitBtn = document.getElementById("submitBtn");
 
-    // ROLE SWITCH
-    roleButtons.forEach(btn => {
-        btn.addEventListener("click", () => {
-            roleButtons.forEach(b => b.classList.remove("active"));
-            btn.classList.add("active");
+    // ✅ ONLY run if buttons exist (prevents breaking other pages)
+    if (roleButtons.length > 0) {
+        roleButtons.forEach(btn => {
+            btn.addEventListener("click", () => {
+                roleButtons.forEach(b => b.classList.remove("active"));
+                btn.classList.add("active");
 
-            selectedRole = btn.dataset.role;
+                selectedRole = btn.dataset.role;
 
-            if (submitBtn) {
-                submitBtn.innerText = `Sign In as ${selectedRole}`;
-            }
+                if (submitBtn) {
+                    submitBtn.innerText = `Sign In as ${selectedRole}`;
+                }
+            });
         });
-    });
+    }
 
-    // LOGIN SUBMIT
+    // ✅ ONLY run if login form exists
     if (loginForm) {
         loginForm.addEventListener("submit", (e) => {
             e.preventDefault();
 
-            const name = document.getElementById("emailinput").value;
+            const input = document.getElementById("emailinput");
+
+            if (!input || input.value.trim() === "") {
+                alert("Enter username");
+                return;
+            }
 
             localStorage.setItem("isLoggedIn", "true");
             localStorage.setItem("role", selectedRole);
-            localStorage.setItem("vconnectUserName", name);
+            localStorage.setItem("vconnectUserName", input.value);
 
             alert(`Logged in as ${selectedRole}`);
 
@@ -168,7 +175,6 @@ if (wr) {
 
 const currentWashroom = localStorage.getItem("washroomId") || "WR01";
 
-
 /* ================== VCONNECT APP ================== */
 class VConnectApp {
 
@@ -198,25 +204,50 @@ class VConnectApp {
     }
 
     submitReport(type) {
-        const selected = document.querySelector(".selected");
+
+        let msg = "";
+
+        if (type === "feedback") msg = "Feedback submitted!";
+        else if (type === "request") msg = "Cleaning request sent!";
+        else if (type === "status") msg = "Status updated!";
+        else if (type === "facility") msg = "Issue reported!";
+
+        const selected = document.querySelector(".option-group .selected");
+        const otherBox = document.getElementById("otherBox");
+
+        let issueText = "";
+
+        if (selected) {
+            issueText = selected.innerText;
+        } else if (otherBox && otherBox.value.trim() !== "") {
+            issueText = otherBox.value;
+        } else {
+            issueText = type;
+        }
 
         const newReport = {
-            issue: selected ? selected.innerText : type,
-            washroom: currentWashroom,
+            id: Date.now(),
+            issue: issueText,
+            washroom: localStorage.getItem("washroomId") || "WR01",
             time: new Date().toLocaleTimeString(),
-            status: "pending"
+            status: "pending",
+            user: localStorage.getItem("vconnectUserName") || "Guest"
         };
 
         let reports = JSON.parse(localStorage.getItem("reports")) || [];
         reports.push(newReport);
         localStorage.setItem("reports", JSON.stringify(reports));
 
-        alert("Report sent!");
+        console.log("Saved report:", newReport);
+
+        alert(msg);
+
         this.closeModal();
     }
 }
 
-const app = new VConnectApp();
+// ✅ ONLY ONE INSTANCE
+window.app = new VConnectApp();
 
 window.openModal = (type) => app.openModal(type);
 window.closeModal = () => app.closeModal();

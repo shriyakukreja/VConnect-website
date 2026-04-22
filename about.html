@@ -58,9 +58,9 @@
                 </div>
                 <div class="input-group" style="margin-bottom: 20px;">
                     <label>Message</label>
-                    <textarea placeholder="Write your message here..." required style="width: 100%; padding: 12px; min-height: 120px; border-radius: 8px; border: 1px solid #ccc;"></textarea>
+                    <textarea id="messageInput" placeholder="Write your message here..." required style="width: 100%; padding: 12px; min-height: 120px; border-radius: 8px; border: 1px solid #ccc;"></textarea>
                 </div>
-                <button type="submit" class="primary-btn" style="display: flex; align-items: center; justify-content: center; gap: 10px;">
+                <button type ="button" onclick="sendMessage()" style="display: flex; align-items: center; justify-content: center; gap: 10px;">
                     <i class="fa-solid fa-paper-plane"></i> Send Message
                 </button>
             </form>
@@ -155,20 +155,45 @@
 </style>
 
 <script>
-const contactForm = document.getElementById('contactForm');
-const contactModal = document.getElementById('contactModal');
-
-contactForm.addEventListener('submit', function(e){
-    e.preventDefault();
-    contactModal.classList.remove('hidden');
-    contactForm.reset();
-
-    // Auto close after 3 seconds
-    setTimeout(() => contactModal.classList.add('hidden'), 3000);
-});
-
 function closeContactModal(){
     contactModal.classList.add('hidden');
 }
 </script>
 <script src="js/main.js"></script>
+<script>
+function sendMessage() {
+
+    const input = document.getElementById("messageInput");
+
+    if (!input || input.value.trim() === "") {
+        alert("Enter a message");
+        return;
+    }
+
+    
+<script>
+function sendMessage() {
+    const input = document.getElementById("messageInput");
+
+    if (!input || input.value.trim() === "") {
+        alert("Write a message");
+        return;
+    }
+
+    const newMsg = {
+        text: input.value,
+        sender: localStorage.getItem("role") || "Guest",
+        name: localStorage.getItem("vconnectUserName") || "Anonymous",
+        time: new Date().toLocaleTimeString()
+    };
+
+    let messages = JSON.parse(localStorage.getItem("messages")) || [];
+    messages.push(newMsg);
+
+    localStorage.setItem("messages", JSON.stringify(messages));
+
+    alert("Message sent to supervisor");
+
+    input.value = "";
+}
+</script>

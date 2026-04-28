@@ -255,4 +255,4 @@ window.closeModal = () => app.closeModal();
 window.selectOption = function(btn) {
     btn.parentElement.querySelectorAll("button").forEach(b => b.classList.remove("selected"));
     btn.classList.add("selected");
-};
+}

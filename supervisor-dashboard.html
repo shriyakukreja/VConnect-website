@@ -1251,7 +1251,7 @@
       </div>
 
       <div id="quick-queries">
-        <!-- Rendered by JS -->
+    <!-- Rendered by JS -->
       </div>
     </div>
 
@@ -1530,11 +1530,20 @@ const issues = [
   { id:7, title:'Floor wet — slipping hazard',loc:'Block A — WR01',source:'User', time:'11:20', severity:'danger', status:'resolved', assigned:'Priya Mehta',  desc:'Water from overflowing mop bucket. Resolved.' },
 ];
 
-const demoQueries = [
-  { id:1, msg:'No toilet paper in any stall. Please help!', loc:'Block C — WR03', time:'2 min ago', type:'Guest', severity:'danger' },
-  { id:2, msg:'The hand dryer is making a loud noise and sparks.', loc:'Block A — WR02', time:'8 min ago', type:'User', severity:'danger' },
-  { id:3, msg:'Could use a clean — looks a bit dirty in here.', loc:'Block B — WR01', time:'15 min ago', type:'Guest', severity:'warn' },
-];
+function getCombinedReports() {
+  const real = JSON.parse(localStorage.getItem("reports")) || [];
+
+  const formattedReal = real.map(r => ({
+    id: r.id,
+    msg: r.issue,
+    loc: r.washroom,
+    time: r.time,
+    type: r.user || "Guest",
+    severity: "warn"
+  }));
+
+  return [...formattedReal, ...reports];
+}
 
 // ===== RENDER STAFF TABLE =====
 function renderStaffTable() {
@@ -1638,13 +1647,13 @@ function renderIssues(filter = 'all') {
 
 // ===== RENDER QUICK QUERIES =====
 function renderQuickQueries() {
-    const cont = document.getElementById('quick-queries');
-
     const realReports = JSON.parse(localStorage.getItem("reports")) || [];
+    const cont = document.getElementById('quick-queries');
+    const sidebarContainer = document.getElementById("reportContainer");
 
     // Convert real reports into same format as demo
     const formattedReal = realReports.map((r, index) => ({
-        id: index,
+        id: r.id,
         msg: r.issue,
         loc: r.washroom,
         time: r.time || "Just now",
@@ -1654,7 +1663,7 @@ function renderQuickQueries() {
     }));
 
     // 🔥 MERGE BOTH
-    const allQueries = [...formattedReal, ...demoQueries];
+    const allQueries = [...formattedReal];
 
     if (allQueries.length === 0) {
         cont.innerHTML = "<p>No reports yet</p>";
@@ -1662,37 +1671,51 @@ function renderQuickQueries() {
     }
 
     cont.innerHTML = allQueries.map(q => `
-        <div class="qr-panel">
-            <div class="qr-title">
-                <span class="issue-dot ${q.severity}"></span>
-                ${q.loc}
-                <span class="pill ${q.severity === 'danger' ? 'danger' : 'warn'}" style="margin-left:6px">
-                    ${q.type}
-                </span>
-                <span style="margin-left:auto;font-size:12px;color:var(--muted)">
-                    ${q.time}
-                </span>
-            </div>
+    <div class="qr-panel">
+        <div class="qr-title">
+            <span class="issue-dot ${q.severity}"></span>
+            ${q.loc}
+            
+            <span class="pill ${q.severity === 'danger' ? 'danger' : 'warn'}" style="margin-left:6px">
+                ${q.type}
+            </span>
 
-            <div style="background:var(--bg3);padding:12px;border-radius:8px;margin-bottom:10px">
-                "${q.msg}"
-            </div>
+            <span style="margin-left:auto;font-size:12px;color:var(--muted)">
+                ${q.time}
+            </span>
+        </div>
 
-            <div style="display:flex;gap:8px;margin-bottom:10px">
-                <button class="btn" onclick="quickRespond('${q.id}', 'On our way')">On our way</button>
-                <button class="btn" onclick="quickRespond('${q.id}', 'Staff dispatched')">Dispatch</button>
-                <button class="btn" onclick="quickRespond('${q.id}', 'Resolved')">Resolve</button>
-            </div>
+        <div style="background:var(--bg3);padding:12px;border-radius:8px;margin-bottom:10px">
+            "${q.msg}"
+        </div>
 
-            <div style="display:flex;gap:8px">
-                <textarea id="reply-${q.id}" class="response-input" placeholder="Custom reply..."></textarea>
-                <button class="btn primary"
-                    onclick="quickRespond('${q.id}', document.getElementById('reply-${q.id}').value)">
-                    Send
-                </button>
+        <div style="display:flex;gap:8px">
+            <button class="btn" onclick="quickRespond('${q.id}', 'On our way')">On our way</button>
+            <button class="btn" onclick="quickRespond('${q.id}', 'Staff dispatched')">Dispatch</button>
+            <button class="btn" onclick="quickRespond('${q.id}', 'Resolved')">Resolve</button>
+        </div>
+    </div>
+`).join("");
+
+if (sidebar) {
+    sidebar.innerHTML = allQueries.map(q => `
+        <div style="
+            background: rgba(0,255,150,0.05);
+            border: 1px solid rgba(0,255,150,0.2);
+            padding: 8px;
+            border-radius: 6px;
+            margin: 8px 0;
+            font-size: 11px;
+        ">
+            <div><strong>${q.msg}</strong></div>
+            <div>Washroom: ${q.loc}</div>
+            <div>Time: ${q.time}</div>
+            <div style="color:${q.status === 'Resolved' ? 'lightgreen' : 'orange'};">
+                Status: ${q.status || 'pending'}
             </div>
         </div>
     `).join("");
+}
 }
 // ===== RENDER WORKLOAD GRID =====
 function renderWorkloadGrid() {
@@ -1764,19 +1787,24 @@ function resolveIssue(id) {
   if (issue) { issue.status = 'resolved'; renderIssues('all'); showToast('Issue marked as resolved'); }
 }
 
-function quickRespond(id, message) {
+function quickRespond(id, response) {
     let reports = JSON.parse(localStorage.getItem("reports")) || [];
 
-    // Only update REAL reports
-    if (!isNaN(id) && reports[id]) {
-        reports[id].status = message;
-        localStorage.setItem("reports", JSON.stringify(reports));
-    }
+    reports = reports.map(r => {
+        if (Number(r.id) === Number(id)) {
+            r.status = response;
+        }
+        return r;
+    });
 
-    alert("Response sent: " + message);
+    localStorage.setItem("reports", JSON.stringify(reports));
 
-    renderQuickQueries();
+    // 🔴 FORCE UI UPDATE IMMEDIATELY
+    setTimeout(() => {
+        renderQuickQueries();
+    }, 100);
 }
+
 
 function openAssignModal() {
   document.getElementById('assign-modal').classList.add('open');
@@ -1832,6 +1860,7 @@ renderStaffTable();
 renderTasks();
 renderIssues();
 renderQuickQueries();
+setInterval(renderQuickQueries, 2000);
 renderWorkloadGrid();
 setTimeout(animateBars, 100);
 
@@ -1888,12 +1917,37 @@ function renderSupervisorData() {
     }
 }
 
-// LOAD
-document.addEventListener("DOMContentLoaded", renderSupervisorData);
 
-// AUTO REFRESH (for demo)
-setInterval(renderSupervisorData, 2000);
+</script>
+<script src="https://cdn.socket.io/4.7.2/socket.io.min.js">
+  socket.on("sensor-update", (data) => {
+    console.log("Live sensor:", data);
 
+    let issue = "";
+
+    if (data.gas > 300) {
+        issue = "High Gas Detected";
+    } else if (data.water > 70) {
+        issue = "Water Overflow";
+    } else if (data.motion === true) {
+        issue = "High Usage Detected";
+    } else {
+        return;
+    }
+
+    const sensorReport = {
+        id: Date.now(),
+        issue: issue,
+        washroom: "WR01",
+        time: new Date().toLocaleTimeString(),
+        status: "pending",
+        user: "Sensor"
+    };
+
+    let reports = JSON.parse(localStorage.getItem("reports")) || [];
+    reports.push(sensorReport);
+    localStorage.setItem("reports", JSON.stringify(reports));
+});
 </script>
 </body>
 </html>

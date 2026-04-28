@@ -1334,7 +1334,7 @@ setInterval(() => {
   if (el) el.innerHTML = `<div class="pulse"></div>LIVE · ${t}`;
 }, 5000);
 </script>
-<script src="./js/main.js"></script>
+<script src="js/main.js"></script>
 <script>
 
 function renderTasks() {
@@ -1371,6 +1371,13 @@ document.addEventListener("DOMContentLoaded", renderTasks);
 // AUTO REFRESH (optional but good)
 setInterval(renderTasks, 2000);
 
+</script>
+<script src="https://cdn.socket.io/4.7.2/socket.io.min.js">
+  const socket = io("https://joe-backend-61qy.onrender.com");
+
+socket.on("sensor-update", (data) => {
+    console.log("Staff sees sensor:", data);
+});
 </script>
 </body>
 </html>

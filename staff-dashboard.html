@@ -1337,34 +1337,77 @@ setInterval(() => {
 <script src="js/main.js"></script>
 <script>
 
-function renderTasks() {
+async function renderTasks() {
     const container = document.getElementById("taskContainer");
     if (!container) return;
 
-    const reports = JSON.parse(localStorage.getItem("reports")) || [];
+    try {
+        const res = await fetch("https://joe-backend-61qy.onrender.com/api/washroom/data");
+        const reports = await res.json();
 
-    if (reports.length === 0) {
-        container.innerHTML = "<p>No tasks yet</p>";
-        return;
+        if (!reports || reports.length === 0) {
+            container.innerHTML = "<p>No tasks yet</p>";
+            return;
+        }
+
+        container.innerHTML = reports.map((r, index) => {
+            const time = r.timestamp 
+                ? new Date(r.timestamp).toLocaleString() 
+                : "No time";
+
+            return `
+            <div style="padding:10px; border:1px solid #444; margin-bottom:10px;">
+                <strong>${r.washroomId || "W1"}</strong><br>
+                <small>${time}</small><br>
+                Status: ${r.status || "UNKNOWN"}<br>
+                Cleanliness: ${r.cleanlinessScore !== undefined ? r.cleanlinessScore : "N/A"}%<br>
+                <button onclick="completeTask(${index})">Mark Done</button>
+            </div>
+            `;
+        }).join("");
+
+    } catch (err) {
+        console.error("Error loading tasks:", err);
+        container.innerHTML = "<p>Error loading tasks</p>";
     }
-
-    container.innerHTML = reports.map((r, index) => `
-        <div style="padding:10px; border:1px solid #444; margin-bottom:10px;">
-            <strong>${r.issue}</strong><br>
-            <small>${r.washroom} • ${r.time}</small><br>
-            Status: ${r.status}<br>
-            <button onclick="completeTask(${index})">Mark Done</button>
-        </div>
-    `).join("");
 }
 
-function completeTask(index) {
-    let reports = JSON.parse(localStorage.getItem("reports")) || [];
-    reports[index].status = "done";
-    localStorage.setItem("reports", JSON.stringify(reports));
-    renderTasks();
-}
+async function completeTask(index) {
+    try {
+        // 1. Get current tasks from backend
+        const res = await fetch("https://joe-backend-61qy.onrender.com/api/washroom/data");
+        const reports = await res.json();
 
+        const selectedReport = reports[index];
+
+        // 2. Modify status
+        const updatedPayload = {
+            ...selectedReport,
+            status: "CLEAN",   // or "done" if you prefer
+            timestamp: new Date().toISOString()
+        };
+
+        console.log("Updating:", updatedPayload);
+
+        // 3. Send updated data as NEW entry (since no PUT route yet)
+        const postRes = await fetch("https://joe-backend-61qy.onrender.com/api/washroom/data", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(updatedPayload)
+        });
+
+        const data = await postRes.json();
+        console.log("Backend response:", data);
+
+        // 4. Refresh UI from backend
+        renderTasks();
+
+    } catch (err) {
+        console.error("Error updating task:", err);
+    }
+}
 // LOAD DATA
 document.addEventListener("DOMContentLoaded", renderTasks);
 

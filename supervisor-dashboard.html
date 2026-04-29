@@ -1802,8 +1802,15 @@ setTimeout(animateBars, 100);
 setInterval(() => {
   const now = new Date();
   const t = now.toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit' });
+
   const el = document.querySelector('.live-badge');
-  if (el) el.innerHTML = `<div class="pulse"></div>LIVE · ${t}`;
+  if (el) {
+    el.innerHTML = `<div class="pulse"></div>LIVE · ${t}`;
+  }
+
+  // ✅ ADD THIS LINE
+  renderTasks();
+
 }, 5000);
 </script>
 </body>

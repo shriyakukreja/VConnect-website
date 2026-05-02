@@ -1415,5 +1415,12 @@ document.addEventListener("DOMContentLoaded", renderTasks);
 setInterval(renderTasks, 2000);
 
 </script>
+<script src="https://cdn.socket.io/4.7.2/socket.io.min.js">
+  const socket = io("https://joe-backend-61qy.onrender.com");
+
+socket.on("sensor-update", (data) => {
+    console.log("Staff sees sensor:", data);
+});
+</script>
 </body>
 </html>

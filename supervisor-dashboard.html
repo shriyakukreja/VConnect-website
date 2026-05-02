@@ -955,6 +955,7 @@
     </div>
     <div class="nav-item" onclick="switchTab('quick', this)">
       <span class="icon">⚡</span> Quick Actions
+      <div id="reportContainer"></div>
       <span class="badge warn">3</span>
     </div>
     <div class="nav-item" onclick="switchTab('assign', this)">
@@ -971,7 +972,7 @@
     <div class="supervisor-card">
       <div class="avatar">RS</div>
       <div class="sup-info">
-        <p>Rahul Singh</p>
+        <p>Priya Singh</p>
         <span>Shift Supervisor</span>
       </div>
     </div>
@@ -1250,7 +1251,7 @@
       </div>
 
       <div id="quick-queries">
-        <!-- Rendered by JS -->
+    <!-- Rendered by JS -->
       </div>
     </div>
 
@@ -1411,7 +1412,7 @@
           <div class="avatar-sm" style="background: linear-gradient(135deg,var(--accent),#0d9488);flex-shrink:0">RS</div>
           <div>
             <div class="bubble-text from-user">Thank you for reporting. We've dispatched Karan to assess immediately. A plumber is scheduled for tomorrow morning.</div>
-            <div class="bubble-meta">Rahul (Supervisor) · 07 Apr 14:02</div>
+            <div class="bubble-meta">Priya (Supervisor) · 07 Apr 14:02</div>
           </div>
         </div>
         <div style="padding:12px 18px;border-top:1px solid var(--border)">
@@ -1529,11 +1530,20 @@ const issues = [
   { id:7, title:'Floor wet — slipping hazard',loc:'Block A — WR01',source:'User', time:'11:20', severity:'danger', status:'resolved', assigned:'Priya Mehta',  desc:'Water from overflowing mop bucket. Resolved.' },
 ];
 
-const quickQueries = [
-  { id:1, msg:'No toilet paper in any stall. Please help!', loc:'Block C — WR03', time:'2 min ago', type:'Guest', severity:'danger' },
-  { id:2, msg:'The hand dryer is making a loud noise and sparks.', loc:'Block A — WR02', time:'8 min ago', type:'User', severity:'danger' },
-  { id:3, msg:'Could use a clean — looks a bit dirty in here.', loc:'Block B — WR01', time:'15 min ago', type:'Guest', severity:'warn' },
-];
+function getCombinedReports() {
+  const real = JSON.parse(localStorage.getItem("reports")) || [];
+
+  const formattedReal = real.map(r => ({
+    id: r.id,
+    msg: r.issue,
+    loc: r.washroom,
+    time: r.time,
+    type: r.user || "Guest",
+    severity: "warn"
+  }));
+
+  return [...formattedReal, ...reports];
+}
 
 // ===== RENDER STAFF TABLE =====
 function renderStaffTable() {
@@ -1637,32 +1647,76 @@ function renderIssues(filter = 'all') {
 
 // ===== RENDER QUICK QUERIES =====
 function renderQuickQueries() {
-  const cont = document.getElementById('quick-queries');
-  cont.innerHTML = quickQueries.map(q => `
-    <div class="qr-panel">
-      <div class="qr-title">
-        <span class="issue-dot ${q.severity}" style="display:inline-block"></span>
-        ${q.loc}
-        <span class="pill ${q.severity === 'danger' ? 'danger' : 'warn'}" style="margin-left:4px">${q.type}</span>
-        <span style="font-size:12px;color:var(--muted);font-family:var(--font-mono);font-weight:400;margin-left:auto">${q.time}</span>
-      </div>
-      <div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;margin-bottom:14px;font-size:13.5px;line-height:1.5">
-        "${q.msg}"
-      </div>
-      <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap">
-        <button class="btn" onclick="quickRespond(${q.id}, 'On our way!')">On our way!</button>
-        <button class="btn" onclick="quickRespond(${q.id}, 'Staff dispatched')">Staff dispatched</button>
-        <button class="btn" onclick="quickRespond(${q.id}, 'Being addressed now')">Being addressed</button>
-        <button class="btn" onclick="quickRespond(${q.id}, 'Will resolve in 10 mins')">10 min ETA</button>
-      </div>
-      <div style="display:flex;gap:8px">
-        <textarea class="response-input" id="qr-input-${q.id}" placeholder="Or type a custom response..."></textarea>
-        <button class="btn primary" onclick="quickRespond(${q.id}, document.getElementById('qr-input-${q.id}').value || 'On our way!')">Send ↗</button>
-      </div>
-    </div>
-  `).join('');
-}
+    const realReports = JSON.parse(localStorage.getItem("reports")) || [];
+    const cont = document.getElementById('quick-queries');
+    const sidebarContainer = document.getElementById("reportContainer");
 
+    // Convert real reports into same format as demo
+    const formattedReal = realReports.map((r, index) => ({
+        id: r.id,
+        msg: r.issue,
+        loc: r.washroom,
+        time: r.time || "Just now",
+        type: r.user || "User",
+        severity: "danger",
+        isReal: true
+    }));
+
+    // 🔥 MERGE BOTH
+    const allQueries = [...formattedReal];
+
+    if (allQueries.length === 0) {
+        cont.innerHTML = "<p>No reports yet</p>";
+        return;
+    }
+
+    cont.innerHTML = allQueries.map(q => `
+    <div class="qr-panel">
+        <div class="qr-title">
+            <span class="issue-dot ${q.severity}"></span>
+            ${q.loc}
+            
+            <span class="pill ${q.severity === 'danger' ? 'danger' : 'warn'}" style="margin-left:6px">
+                ${q.type}
+            </span>
+
+            <span style="margin-left:auto;font-size:12px;color:var(--muted)">
+                ${q.time}
+            </span>
+        </div>
+
+        <div style="background:var(--bg3);padding:12px;border-radius:8px;margin-bottom:10px">
+            "${q.msg}"
+        </div>
+
+        <div style="display:flex;gap:8px">
+            <button class="btn" onclick="quickRespond('${q.id}', 'On our way')">On our way</button>
+            <button class="btn" onclick="quickRespond('${q.id}', 'Staff dispatched')">Dispatch</button>
+            <button class="btn" onclick="quickRespond('${q.id}', 'Resolved')">Resolve</button>
+        </div>
+    </div>
+`).join("");
+
+if (sidebar) {
+    sidebar.innerHTML = allQueries.map(q => `
+        <div style="
+            background: rgba(0,255,150,0.05);
+            border: 1px solid rgba(0,255,150,0.2);
+            padding: 8px;
+            border-radius: 6px;
+            margin: 8px 0;
+            font-size: 11px;
+        ">
+            <div><strong>${q.msg}</strong></div>
+            <div>Washroom: ${q.loc}</div>
+            <div>Time: ${q.time}</div>
+            <div style="color:${q.status === 'Resolved' ? 'lightgreen' : 'orange'};">
+                Status: ${q.status || 'pending'}
+            </div>
+        </div>
+    `).join("");
+}
+}
 // ===== RENDER WORKLOAD GRID =====
 function renderWorkloadGrid() {
   const sorted = [...staff].sort((a,b) => a.workload - b.workload);
@@ -1733,13 +1787,24 @@ function resolveIssue(id) {
   if (issue) { issue.status = 'resolved'; renderIssues('all'); showToast('Issue marked as resolved'); }
 }
 
-function quickRespond(id, msg) {
-  showToast('Response sent: "' + msg.substring(0,30) + (msg.length>30?'…':'') + '"');
-  const idx = quickQueries.findIndex(q => q.id === id);
-  if (idx !== -1) { quickQueries.splice(idx, 1); renderQuickQueries(); }
-  const badge = document.querySelector('.badge.warn');
-  if (badge) badge.textContent = quickQueries.length;
+function quickRespond(id, response) {
+    let reports = JSON.parse(localStorage.getItem("reports")) || [];
+
+    reports = reports.map(r => {
+        if (Number(r.id) === Number(id)) {
+            r.status = response;
+        }
+        return r;
+    });
+
+    localStorage.setItem("reports", JSON.stringify(reports));
+
+    // 🔴 FORCE UI UPDATE IMMEDIATELY
+    setTimeout(() => {
+        renderQuickQueries();
+    }, 100);
 }
+
 
 function openAssignModal() {
   document.getElementById('assign-modal').classList.add('open');
@@ -1795,6 +1860,7 @@ renderStaffTable();
 renderTasks();
 renderIssues();
 renderQuickQueries();
+setInterval(renderQuickQueries, 2000);
 renderWorkloadGrid();
 setTimeout(animateBars, 100);
 
@@ -1812,6 +1878,83 @@ setInterval(() => {
   renderTasks();
 
 }, 5000);
+</script>
+<script>
+
+function renderSupervisorData() {
+
+    const reports = JSON.parse(localStorage.getItem("reports")) || [];
+    const messages = JSON.parse(localStorage.getItem("messages")) || [];
+
+    const reportContainer = document.getElementById("reportContainer");
+    const messageContainer = document.getElementById("messageContainer");
+
+    // ===== REPORTS =====
+    if (reportContainer) {
+
+        if (reports.length === 0) {
+            reportContainer.innerHTML = "<p>No reports</p>";
+        } else {
+            reportContainer.innerHTML = reports.map(r => `
+                <div style="padding:10px; border:1px solid #444; margin-bottom:10px;">
+                    <strong>${r.issue}</strong><br>
+                    Washroom: ${r.washroom}<br>
+                    By: ${r.user}<br>
+                    Time: ${r.time}<br>
+                    Status: ${r.status}
+                </div>
+            `).join("");
+        }
+    }
+
+    // ===== MESSAGES =====
+    if (messageContainer) {
+
+        if (messages.length === 0) {
+            messageContainer.innerHTML = "<p>No messages</p>";
+        } else {
+            messageContainer.innerHTML = messages.map(m => `
+                <div style="padding:10px; border:1px solid #444; margin-bottom:10px;">
+                    <strong>${m.user}</strong><br>
+                    ${m.text}<br>
+                    <small>${m.time}</small>
+                </div>
+            `).join("");
+        }
+    }
+}
+
+
+</script>
+<script src="https://cdn.socket.io/4.7.2/socket.io.min.js">
+  socket.on("sensor-update", (data) => {
+    console.log("Live sensor:", data);
+
+    let issue = "";
+
+    if (data.gas > 300) {
+        issue = "High Gas Detected";
+    } else if (data.water > 70) {
+        issue = "Water Overflow";
+    } else if (data.motion === true) {
+        issue = "High Usage Detected";
+    } else {
+        return;
+    }
+
+    const sensorReport = {
+        id: Date.now(),
+        issue: issue,
+        washroom: "WR01",
+        time: new Date().toLocaleTimeString(),
+        status: "pending",
+        user: "Sensor"
+    };
+
+    let reports = JSON.parse(localStorage.getItem("reports")) || [];
+    reports.push(sensorReport);
+    localStorage.setItem("reports", JSON.stringify(reports));
+});
 </script>
 </body>
 </html>
